@@ -36,10 +36,10 @@ case class WsDoiService @Inject()(ws: WSClient, config: Configuration)(implicit 
       }
   }
 
-  override def getDoiMetadata(doi: String): Future[Option[DoiMetadata]] = {
+  override def getDoiMetadata(doi: String): Future[DoiMetadata] = {
     ws.url(s"$doiBaseUrl/$doi").withHttpHeaders(headers.toSeq: _*).get().map { response =>
       val jsonApiData = parseResponse[JsonApiData](response)
-      Some(jsonApiData.data.as[DoiMetadata])
+      jsonApiData.data.as[DoiMetadata]
     }
   }
 
@@ -84,7 +84,7 @@ case class WsDoiService @Inject()(ws: WSClient, config: Configuration)(implicit 
           throw new RuntimeException(s"Failed to parse response: ${response.status} ${response.statusText} - $errors")
       }
     } else {
-      throw new RuntimeException(s"Failed to parse response: ${response.status} ${response.statusText}")
+      throw DoiServiceException("Unexpected DOI Service response", response.status, response.json)
     }
   }
 }

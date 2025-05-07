@@ -1,2 +1,7 @@
 # https://www.playframework.com/documentation/latest/ScalaI18N
 doi.doi=DOI: {}
+
+error.invalidToken=The token is missing, invalid or expired.
+errors.notFound=404 Not Found
+errors.gone=410 Gone
+error.doi.notFound=The DOI you provided does not exist or is not valid.

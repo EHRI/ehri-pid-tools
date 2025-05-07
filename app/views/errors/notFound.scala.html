@@ -1,0 +1,6 @@
+@(errorCode: String)(implicit request: RequestHeader, messages: Messages)
+
+@views.html.layout.base(Messages(errorCode)) {
+  <h1>@Messages("errors.notFound")</h1>
+  <p>@Messages(errorCode)</p>
+}

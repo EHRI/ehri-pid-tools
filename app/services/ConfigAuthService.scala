@@ -18,7 +18,7 @@ case class ConfigAuthService @Inject()(config: Configuration) extends AuthServic
     // a registered client id and a secret
     // separated by a colon
     val decoded = new String(decoder.decode(token), StandardCharsets.UTF_8)
-    val parts = decoded.split(":")
+    val parts = decoded.split(":", 2)
     if (parts.length == 2) {
       val clientId = parts(0)
       val clientSecret = parts(1)

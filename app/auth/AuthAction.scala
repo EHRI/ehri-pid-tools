@@ -34,12 +34,12 @@ case class AuthAction @Inject()(
   private implicit val ec: ExecutionContext = executionContext
   private implicit val messages: Messages = messagesApi.preferred(Seq.empty)
 
-  private def jsonError(implicit message: Messages): Result = Unauthorized {
+  private def jsonError(implicit messages: Messages): Result = Unauthorized {
     Json.obj(
       "errors" -> Json.arr(
         Json.obj(
           "code" -> "invalid_token",
-          "message" -> "The token is missing, invalid or expired.",
+          "message" -> Messages("error.invalidToken"),
           "status" -> 401,
         )
       )

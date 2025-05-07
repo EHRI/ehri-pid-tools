@@ -15,14 +15,20 @@ class WsDoiServiceSpec extends AppSpec with MockWSHelpers {
       response mustBe resourceAsJson("example-list.json").as[DoiMetadataList]
     }
 
-    "delete stuff" in {
+    "delete DOIs" in {
       val response = await(wsDoiService.deleteDoi("10.1234"))
       response mustBe true
     }
 
-    "get dois" in {
+    "get DOIs" in {
       val response = await(wsDoiService.getDoiMetadata("10.1234"))
-      response mustBe Some(resourceAsJson("example.json").as[JsonApiData].data.as[DoiMetadata])
+      response mustBe resourceAsJson("example.json").as[JsonApiData].data.as[DoiMetadata]
+    }
+
+    "error if DOIs not found" in {
+      intercept[DoiServiceException] {
+        await(wsDoiService.getDoiMetadata("NOT/FOUND")) // see mocks
+      }.status mustBe 404
     }
 
     "register a DOI" in {

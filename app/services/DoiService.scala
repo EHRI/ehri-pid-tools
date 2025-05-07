@@ -12,7 +12,7 @@ trait DoiService {
 
   def listDoiMetadata(prefix: String, page: Int = 1, size: Int = 10, sort: String = "created"): Future[DoiMetadataList]
 
-  def getDoiMetadata(doi: String): Future[Option[DoiMetadata]]
+  def getDoiMetadata(doi: String): Future[DoiMetadata]
 
   def registerDoi(metadata: DoiMetadata): Future[DoiMetadata]
 

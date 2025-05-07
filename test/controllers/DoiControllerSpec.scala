@@ -35,6 +35,28 @@ class DoiControllerSpec extends AppSpec with DatabaseSupport {
       contentAsString(result) must include ("DataCite Metadata Schema")
     }
 
+    "handle 404s with JSON" in {
+      val request = FakeRequest(GET, routes.DoiController.get("NOT", "FOUND").url)
+        .withHeaders("Accept" -> "application/vnd.api+json")
+      val result = controller.get("NOT", "FOUND").apply(request)
+
+      status(result) mustBe NOT_FOUND
+      contentType(result) mustBe Some("application/vnd.api+json")
+      // NB: this is the error message we get when we don't have the DOI registered
+      // in our PID service.
+      contentAsString(result) must include ("errors.doi.notFound")
+    }
+
+    "handle 404s with HTML" in {
+      val request = FakeRequest(GET, routes.DoiController.get("NOT", "FOUND").url)
+        .withHeaders("Accept" -> "text/html")
+      val result = controller.get("NOT", "FOUND").apply(request)
+
+      status(result) mustBe NOT_FOUND
+      contentType(result) mustBe Some("text/html")
+      contentAsString(result) must include ("DOI not found")
+    }
+
     "register a DOI" in {
       val payload = resourceAsJson("example.json").as[JsObject] ++ Json.obj(
         "meta" -> Json.obj(
