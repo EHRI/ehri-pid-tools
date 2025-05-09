@@ -12,7 +12,9 @@ POST          /dois                                  controllers.DoiController.r
 PUT           /dois/:prefix/:suffix                  controllers.DoiController.update(prefix: String, suffix: String)
 +nocsrf
 DELETE        /dois/:prefix/:suffix                  controllers.DoiController.delete(prefix: String, suffix: String)
++nocsrf
 POST          /dois/:prefix/:suffix/tombstone        controllers.DoiController.tombstone(prefix: String, suffix: String)
++nocsrf
 DELETE        /dois/:prefix/:suffix/tombstone        controllers.DoiController.deleteTombstone(prefix: String, suffix: String)
 
 

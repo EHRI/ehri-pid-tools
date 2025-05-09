@@ -1,4 +1,4 @@
-@(id: String, target: String, metadata: DataCiteMetadata)(implicit request: RequestHeader, messages: Messages, config: AppConfig)
+@(pid: Pid, metadata: DataCiteMetadata)(implicit request: RequestHeader, messages: Messages, config: AppConfig)
 
 @relatedIdentifierSection(relatedIdentifiers: Seq[RelatedIdentifier], `type`: String, name: String) = {
   @defining(relatedIdentifiers.filter(item => item.relationType == `type`)) { typeIdentifiers =>
@@ -21,23 +21,23 @@
 }
 
 @extraHead = {
-  <meta name="DC.identifier" content="@config.doiUrl(id)">
+  <meta name="DC.identifier" content="@config.doiUrl(pid.value)">
 
   <script src="https://cdnjs.cloudflare.com/ajax/libs/citation-js/0.7.17/citation.js" crossorigin="anonymous"
   referrerpolicy="no-referrer"></script>
   <script>
-          const doi = "@id"; // FAKE
-          const doiUrl = "@config.doiUrl(id)";
+          const doi = "@pid.value"; // FAKE
+          const doiUrl = "@config.doiUrl(pid.value)";
           const Cite = require('citation-js');
   </script>
   <script src="@routes.Assets.versioned("js/cite-doi.js")"></script>
 }
 
-@views.html.layout.base(metadata.title.getOrElse(Messages("doi.doi", id)), extraHead = extraHead) {
+@views.html.layout.base(metadata.title.getOrElse(Messages("doi.doi", pid.value)), extraHead = extraHead) {
   <section class="doi-banner">
     <div class="doi-identifier">
       <span property="identifier">
-        <a href="@config.doiUrl(id)">@config.doiUrl(id)</a></span>
+        <a href="@config.doiUrl(pid.value)">@config.doiUrl(pid.value)</a></span>
     </div>
     <div class="doi-actions">
       <a href="#" id="doi-cite-action" class="button-primary">Cite</a>
@@ -132,28 +132,37 @@
       </div>
     </div>
 
-    <div class="target-card">
-      <div class="target-img">
-        <img src="@routes.Assets.versioned("images/target-image-placeholder.svg")" alt="Image for item">
+    @pid.tombstone.map { tombstone =>
+      <div class="alert alert-danger" role="alert">
+        <h1>410: GONE</h1>
+        <p>
+          This item has been removed and is no longer available.
+        </p>
       </div>
-      <div class="target-info">
-        @metadata.titles.headOption.map { obj =>
-          <header class="target-header">
-            <h2 class="target-title" property="name">
-              <span>@obj.title</span>
-            </h2>
-          </header>
-        }
-        @metadata.descriptions.toSeq.flatten.map { description =>
-          <div class="target-description">
-            @description.description
-          </div>
-        }
+    }.getOrElse {
+      <div class="target-card">
+        <div class="target-img">
+          <img src="@routes.Assets.versioned("images/target-image-placeholder.svg")" alt="Image for item">
+        </div>
+        <div class="target-info">
+          @metadata.titles.headOption.map { obj =>
+            <header class="target-header">
+              <h2 class="target-title" property="name">
+                <span>@obj.title</span>
+              </h2>
+            </header>
+          }
+          @metadata.descriptions.toSeq.flatten.map { description =>
+            <div class="target-description">
+              @description.description
+            </div>
+          }
+        </div>
+        <footer class="target-footer">
+          <a href="@pid.target">@pid.target</a>
+        </footer>
       </div>
-      <footer class="target-footer">
-        <a href="@target">@target</a>
-      </footer>
-    </div>
+    }
 
     @metadata.descriptions.toSeq.flatten.map { description =>
       <div class="abstract" property="description">

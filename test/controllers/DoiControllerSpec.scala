@@ -146,6 +146,13 @@ class DoiControllerSpec extends AppSpec with DatabaseSupport {
       val result = call(controller.tombstone(prefix, suffix), request)
 
       status(result) mustBe NO_CONTENT
+
+      // Check if the DOI is tombstoned
+      val doiRequest = FakeRequest(GET, routes.DoiController.get(prefix, suffix).url)
+        .withHeaders("Accept" -> "application/vnd.api+json")
+      val doiResult = call(controller.get(prefix, suffix), doiRequest)
+      status(doiResult) mustBe GONE
+
     }
 
     "untombstone a DOI" in {

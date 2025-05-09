@@ -47,7 +47,6 @@ class DoiController @Inject()(
     }
   }
 
-
   private def jsonApiError(status: Status, message: String, args: String*)(implicit request: RequestHeader): Result = {
     val errorResponse = Json.obj(
       "errors" -> Json.arr(
@@ -72,11 +71,12 @@ class DoiController @Inject()(
   def get(prefix: String, suffix: String): Action[AnyContent] = Action.async { implicit request =>
     pidService.findById(PidType.DOI, s"$prefix/$suffix").flatMap {
       case Some(pid) => doiService.getDoiMetadata(pid.value).map { doiMetadata =>
+        val status: Status = pid.tombstone.fold(Ok)(_ => Gone)
         render {
           case Accepts.Html() =>
-            Ok(views.html.dois.show(pid.value, pid.target, doiMetadata.asDataCiteMetadata))
+            status(views.html.dois.show(pid, doiMetadata.asDataCiteMetadata))
           case _ =>
-            Ok(Doi(pid.target, doiMetadata))
+            status(Doi(doiMetadata, pid.target, pid.tombstone))
         }
       }
       case None => immediate(render {
@@ -102,7 +102,7 @@ class DoiController @Inject()(
     for {
       doiMetadata <- doiService.registerDoi(newMetadata)
       _ <- pidService.create(PidType.DOI, doi, target, request.clientId)
-    } yield Created(Doi(target, doiMetadata))
+    } yield Created(Doi(doiMetadata, target))
   }
 
   def update(prefix: String, suffix: String): Action[Doi] = AuthAction.async(apiJson[Doi]) { implicit request =>
@@ -116,7 +116,7 @@ class DoiController @Inject()(
     for {
       dm <- doiService.updateDoi(doi, metadata)
       _ <- pidService.update(PidType.DOI, doi, target)
-    } yield Ok(Doi(target, dm))
+    } yield Ok(Doi(dm, target))
   }
 
   def delete(prefix: String, suffix: String): Action[AnyContent] = AuthAction.async { implicit request =>
