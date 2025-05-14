@@ -88,37 +88,6 @@
   font-size: 2rem;
 }
 
-.two-columns {
-  @include auto-grid(500px, 1rem, 2);
-  margin-bottom: $space-lg;
-}
-
-.citation-box {
-  @include card();
-  padding: 1rem;
-
-  .citation-controls {
-    margin-bottom: $space-sm;
-  }
-
-  .citation-result {
-    overflow: auto;
-    height: 10rem;
-    padding: $space-sm;
-    background-color: var(--white);
-  }
-
-  .citation-text {
-    margin-right: auto;
-    color: var(--theme-fg-accent);
-    white-space: break-spaces;
-  }
-
-  .citation-icon {
-    color: var(--theme-fg-accent);
-  }
-}
-
 .target-card {
   @include card();
   padding: $space-md;

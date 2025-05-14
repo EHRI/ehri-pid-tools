@@ -57,7 +57,7 @@ body {
 
   // Header varieties of above
   --theme-header-bg: #{$dark-blue};
-  --theme-header-bg-accent: #{$dark-blue};
+  --theme-header-bg-accent: #{lighten($dark-blue, 50%)};
   --theme-header-bg-accent-gradient: var(--theme-bg-accent-gradient);
   --theme-header-fg: #{$white};
   --theme-header-fg-accent: #{$white};

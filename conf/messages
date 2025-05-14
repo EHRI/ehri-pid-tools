@@ -10,7 +10,11 @@ errors.doi.notFound=The DOI you provided does not exist or is not valid.
 errors.doi.tombstoneFailed=Error creating tombstone for DOI {0}.
 errors.doi.tombstoneNotFound=The DOI provided either does not exist, or is not tombstoned.
 
+pagination.totalPages=Total Pages: {0,number,integer}
+
 pid.citeThisItem=Cite this item
+pid.details=Details
+pid.rights=Rights
 
 dataCite.creators=Creators
 dataCite.contributors=Contributors
@@ -22,7 +26,7 @@ dataCite.format=Format
 dataCite.types=Resource Type
 dataCite.size=Size
 dataCite.language=Language
-dataCite.types.resourceType=Resource Type
+dataCite.types.resourceType=Type
 dataCite.subjects=Subjects
 dataCite.rights=Rights
 dataCite.description=Description
@@ -103,3 +107,17 @@ dataCite.relatedIdentifiers.relationType.IsCollectedBy=Is Collected By
 dataCite.relatedIdentifiers.relationType.Collects=Collects
 dataCite.relatedIdentifiers.relationType.HasTranslation=Has Translation
 dataCite.relatedIdentifiers.relationType.IsTranslationOf=Is Translation Of
+
+dataCite.dateType=Date Type
+dataCite.dateType.Accepted=Accepted
+dataCite.dateType.Available=Available
+dataCite.dateType.Copyrighted=Copyrighted
+dataCite.dateType.Collected=Collected
+dataCite.dateType.Coverage=Coverage
+dataCite.dateType.Created=Created
+dataCite.dateType.Issued=Issued
+dataCite.dateType.Submitted=Submitted
+dataCite.dateType.Updated=Updated
+dataCite.dateType.Valid=Valid
+dataCite.dateType.Withdrawn=Withdrawn
+dataCite.dateType.Other=Other

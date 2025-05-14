@@ -1,6 +1,52 @@
 
+.page-content {
+  display: grid;
+
+  grid-template-areas:
+    "banner" "article" "sidebar";
+  grid-template-columns: 1fr;
+  grid-gap: 2rem;
+
+  @media(min-width: $breakpoint-laptop) {
+    grid-template-areas:
+      "banner banner"
+      "article sidebar";
+    grid-template-columns: 1fr 30%;
+  }
+}
+
+.page-content article.metadata-section {
+  grid-area: article;
+}
+
+.page-content section.doi-banner {
+  grid-area: banner;
+  background-color: var(--theme-header-bg-accent);
+}
+
+.page-content #sidebar {
+    grid-area: sidebar;
+}
+
+.sidebar-section {
+    @include card();
+    margin-bottom: $space-lg;
+    padding: $space-lg;
+
+  header h2 {
+    font-size: var(--font-size-lg);
+    margin-bottom: $space-md;
+    margin-top: 0;
+  }
+}
+
+
 .resource-type-general {
   font-weight: bold;
+}
+
+.metadata-titles h1 {
+  margin: 0 0 $space-lg 0;
 }
 
 .metadata-value-list
@@ -66,3 +112,28 @@
 .doi-state-findable .doi-state-icon {
   background-color: #009966;
 }
+
+/**
+ * Citation box
+ */
+.citation-controls {
+  margin-bottom: $space-sm;
+}
+
+.citation-result {
+  overflow: auto;
+  margin-bottom: $space-sm;
+  font-size: var(--font-size-sm);
+  font-family: 'monospace';
+}
+
+.citation-text {
+  margin-right: auto;
+  color: var(--theme-fg-accent);
+  white-space: break-spaces;
+}
+
+.citation-icon {
+  color: var(--theme-fg-accent);
+}
+

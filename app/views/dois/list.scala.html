@@ -1,7 +1,7 @@
 @(doiMetadataList: DoiMetadataList)(implicit request: RequestHeader, messages: Messages)
 
 @views.html.layout.base("DOI List") {
-  <ul>
+  <ul class="doi-list">
   @for(doiMetadata <- doiMetadataList.dois) {
     <li id="doi-@doiMetadata.id">
     @defining(doiMetadata.asDataCiteMetadata) { dcm =>
@@ -24,4 +24,9 @@
     </li>
   }
   </ul>
+  @if(doiMetadataList.totalPages > 1) {
+    <div class="pagination">
+      @Messages("pagination.totalPages", doiMetadataList.totalPages)
+    </div>
+  }
 }

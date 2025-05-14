@@ -1,29 +1,40 @@
 @(pid: Pid, metadata: DataCiteMetadata)(implicit request: RequestHeader, messages: Messages, config: AppConfig)
 
 @relatedIdentifierSection(relatedIdentifiers: Seq[RelatedIdentifier], `type`: RelationType.Value) = {
-@defining(relatedIdentifiers.filter(item => item.relationType == `type`)) { typeIdentifiers =>
-  @if(typeIdentifiers.nonEmpty) {
-    <h3>@Messages("dataCite.relatedIdentifiers.relationType." + `type`)</h3>
-    <div class="metadata-item">
-      <div class="metadata-value">
-      @for(obj <- typeIdentifiers) {
-        @obj.resourceTypeGeneral.map { rtg =>
-          <span class="resource-type-general">
-            @Messages("dataCite.resourceTypeGeneral." + rtg)
-          </span>
+  @defining(relatedIdentifiers.filter(item => item.relationType == `type`)) { typeIdentifiers =>
+    @if(typeIdentifiers.nonEmpty) {
+      <h3>@Messages("dataCite.relatedIdentifiers.relationType." + `type`)</h3>
+      <div class="metadata-item">
+        <div class="metadata-value">
+        @for(obj <- typeIdentifiers) {
+          @obj.resourceTypeGeneral.map { rtg =>
+            <span class="resource-type-general">
+              @Messages("dataCite.resourceTypeGeneral." + rtg)
+            </span>
+          }
+          @if(obj.relatedIdentifierType == RelatedIdentifierType.DOI) {
+            <a href="@config.doiUrl(obj.relatedIdentifier)">
+            @config.doiUrl(obj.relatedIdentifier)
+            </a>
+            (DOI)
+          }
+          @* {% if not loop.last %}, {% endif %}*@
         }
-        @if(obj.relatedIdentifierType == RelatedIdentifierType.DOI) {
-          <a href="@config.doiUrl(obj.relatedIdentifier)">
-          @config.doiUrl(obj.relatedIdentifier)
-          </a>
-          (DOI)
-        }
-        @* {% if not loop.last %}, {% endif %}*@
-      }
+        </div>
       </div>
-    </div>
+    }
   }
 }
+
+@datePropertyAttr(dateType: DateType.Value) = @{
+  dateType match {
+    case DateType.Created => "created"
+    case DateType.Updated => "modified"
+    case DateType.Submitted => "dateSubmitted"
+    case DateType.Accepted => "dateAccepted"
+    case DateType.Copyrighted => "dateCopyrighted"
+    case _ => "date"
+  }
 }
 
 @extraHead = {
@@ -66,13 +77,9 @@
       <a href="#" id="doi-share-action" class="button-primary">Share</a>
     </div>
   </section>
-  @* {% if error %}*@
-  @*<div class="alert alert-danger" role="alert">*@
-  @* {{ error }}*@
-    <!--</div>-->
-  @* {% else %}*@
+
   @for(related <- metadata.relatedIdentifiers.toSeq.flatten) {
-    @if(related.relationType == "IsPreviousVersionOf" && related.relatedIdentifierType == "DOI") {
+    @if(related.relationType == RelationType.IsPreviousVersionOf && related.relatedIdentifierType == RelatedIdentifierType.DOI) {
       <div class="alert alert-warning" role="alert">
         There is a newer version of this item available at:
         <a href="@config.doiUrl(related.relatedIdentifier)">@config.doiUrl(related.relatedIdentifier)</a>
@@ -80,134 +87,57 @@
     }
   }
 
-
   <article class="metadata-section" typeof="ScholarlyArticle" resource="#publication">
 
-    @metadata.titles.headOption.map { obj =>
-      <h1 property="name">@obj.title</h1>
+    <header class="metadata-titles">
+      @metadata.titles.headOption.map { obj =>
+        <h1 property="title">@obj.title</h1>
+      }
+      @metadata.titles.tail.filter(_.titleType.contains(TitleType.Subtitle)).map { obj =>
+        <h2 role="doc-subtitle" class="subtitle" property="alternative">@obj.title</h2>
+      }
+      @metadata.titles.tail.filter(_.titleType.contains(TitleType.AlternativeTitle)).map { obj =>
+        <h2 role="doc-subtitle" class="alternative-title" property="alternative">@obj.title</h2>
+      }
+      @metadata.titles.tail.filter(_.titleType.contains(TitleType.TranslatedTitle)).map { obj =>
+        <i role="doc-subtitle" class="translated-title" property="alternative">@obj.title</i>
+      }
+    </header>
+
+    @if(metadata.creators.nonEmpty) {
+      <div class="metadata-item">
+      @metadata.creators.map { obj =>
+        <ul class="metadata-value metadata-value-list">
+          <li class="contributor-item">
+            <span property="creator">@obj.familyName, @obj.givenName</span>
+            @obj.nameIdentifiers.toSeq.flatten.map { ident =>
+              @if(ident.nameIdentifierScheme == "ORCID") {
+                <a class="contributor-orcid" href="@ident.nameIdentifier" target="_blank">
+                  <img src="@routes.Assets.versioned("images/orcid-auth.svg")" alt="ORCID logo">
+                </a>
+              }
+            }
+          </li>
+        </ul>
+      }
+      </div>
     }
 
-    @metadata.titles.tail.map { obj =>
-      <h2>@obj.title</h2>
-    }
-
-    <div class="two-columns">
-      <div class="column-1">
-        @if(metadata.creators.nonEmpty) {
-          <div class="metadata-item">
-          @metadata.creators.map { obj =>
-            <div class="metadata-label">@Messages("dataCite.creators"):</div>
-            <ul class="metadata-value metadata-value-list">
-              <li class="contributor-item">
-                <span property="name">@obj.familyName, @obj.givenName</span>
-                @obj.nameIdentifiers.toSeq.flatten.map { ident =>
-                  @if(ident.nameIdentifierScheme == "ORCID") {
-                    <a class="contributor-orcid" href="@ident.nameIdentifier" target="_blank">
-                      <img src="@routes.Assets.versioned("images/orcid-auth.svg")" alt="ORCID logo">
-                    </a>
-                  }
-                }
-              </li>
-            </ul>
+    @metadata.descriptions.toSeq.flatten.map { description =>
+      <div class="metadata-item" property="description">
+        <label class="metadata-label">
+          @if(description.descriptionType.contains(DescriptionType.Abstract)) {
+            @Messages("dataCite.abstract")
+          } else {
+            @Messages("dataCite.description")
           }
-          </div>
-        }
-
-        @metadata.publisher.map { publisher =>
-          <div class="metadata-item">
-            <div class="metadata-label">@Messages("dataCite.publisher"):</div>
-            <div class="metadata-value" property="publisher" typeof="Organization">
-              <span property="name">@publisher</span>
-            </div>
-          </div>
-        }
-
-        @metadata.publicationYear.map { year =>
-          <div class="metadata-item">
-            <div class="metadata-label">@Messages("dataCite.publicationYear"):</div>
-            <div class="metadata-value" property="datePublished">@year</div>
-          </div>
-        }
-
-        @metadata.formats.filter(_.nonEmpty).map { fmts =>
-            <div class="metadata-item">
-              <div class="metadata-label">@Messages("dataCite.format"):</div>
-              <ul class="metadata-value metadata-value-list">
-                @fmts.map { fmt =>
-                  <li class="format-item" property="format">@fmt</li>
-                }
-              </ul>
-            </div>
-        }
-
-        @metadata.sizes.filter(_.nonEmpty).map { sizes =>
-          <div class="metadata-item">
-            <div class="metadata-label">@Messages("dataCite.size"):</div>
-            <ul class="metadata-value metadata-value-list">
-              @sizes.map { size =>
-                <li class="size-item">@size</li>
-              }
-            </ul>
-          </div>
-        }
-
-        @metadata.language.map { lang =>
-          <div class="metadata-item">
-            <div class="metadata-label">@Messages("dataCite.language"):</div>
-            <div class="metadata-value" property="language">@lang</div>
-          </div>
-        }
-
-        @metadata.version.map { version =>
-          <div class="metadata-item">
-            <div class="metadata-label">@Messages("dataCite.version"):</div>
-            <div class="metadata-value" property="version">@version</div>
-          </div>
-        }
-
-        @metadata.descriptions.toSeq.flatten.map { description =>
-          <div class="metadata-item" property="description">
-            <label class="metadata-label">
-              @if(description.descriptionType.contains(DescriptionType.Abstract)) {
-                @Messages("dataCite.abstract")
-              } else {
-                @Messages("dataCite.description")
-              }
-            </label>
-            <div class="metadata-value abstract-text">
-              @description.description
-            </div>
-          </div>
-        }
-
+        </label>
+        <p class="metadata-value abstract-text">
+          @description.description
+        </p>
       </div>
+    }
 
-      <div class="column-2 citation-box">
-        <header>
-          <h2>@Messages("pid.citeThisItem")</h2>
-        </header>
-        <div class="citation-formats">
-          <div class="citation-controls">
-            <select id="citation-format-selector">
-              <option value="apa">APA</option>
-              <option value="mla">MLA</option>
-              <option value="chicago">Chicago</option>
-              <option value="harvard">Harvard</option>
-              <option value="bibtex" selected>BibTeX</option>
-              <option value="ris">RIS</option>
-            </select>
-            <button id="copy-citation" class="button-primary">
-              <i class="fa fa-copy"></i>
-              Copy
-            </button>
-          </div>
-          <div class="citation-result">
-            <pre id="citation-text" class="citation-text"></pre>
-          </div>
-          <div class="citation-copied" style="display: none;">Citation copied!</div>
-        </div>
-      </div>
-    </div>
 
     @pid.tombstone.map { tombstone =>
     <div class="alert alert-danger" role="alert">
@@ -252,7 +182,7 @@
       </div>
     }
 
-    @metadata.rightsSeq.filter(_.nonEmpty).map { rights =>
+    @metadata.rightList.filter(_.nonEmpty).map { rights =>
       <h2>@Messages("dataCite.rights")</h2>
       @rights.map { obj =>
         <div class="metadata-item">
@@ -275,4 +205,157 @@
     }
 
   </article>
+
+  <aside id="sidebar">
+    @if(metadata.hasVersions) {
+      <section class="sidebar-section" id="metadata-versions">
+        <header class="sidebar-header">
+          <h2>@Messages("dataCite.versions")</h2>
+        </header>
+        @metadata.relatedIdentifiers.toSeq.flatten.map { obj =>
+          @if(obj.relationType == RelationType.IsVersionOf && obj.relatedIdentifierType == RelatedIdentifierType.DOI) {
+            <div class="metadata-item">
+              <div class="metadata-value">
+                <a href="@config.doiUrl(obj.relatedIdentifier)">
+                @config.doiUrl(obj.relatedIdentifier)
+                </a>
+              </div>
+            </div>
+          }
+        }
+      </section>
+    }
+
+    <section class="sidebar-section" id="metadata-details">
+      <header class="sidebar-header">
+        <h2>@Messages("pid.details")</h2>
+      </header>
+
+      <div class="metadata-item">
+        <div class="metadata-label">@Messages("dataCite.types.resourceType"):</div>
+        <div class="metadata-value">
+          <span property="type">@Messages("dataCite.resourceTypeGeneral." + metadata.types.resourceTypeGeneral)</span>
+          @metadata.types.resourceType.map { rt =>
+            <span class="resource-type">
+              |
+              @Messages(rt)
+            </span>
+          }
+        </div>
+      </div>
+
+      @metadata.publisher.map { publisher =>
+        <div class="metadata-item">
+          <div class="metadata-label">@Messages("dataCite.publisher"):</div>
+          <div class="metadata-value" property="publisher" typeof="Organization">
+            <span property="name">@publisher</span>
+          </div>
+        </div>
+      }
+
+      @metadata.publicationYear.map { year =>
+        <div class="metadata-item">
+          <div class="metadata-label">@Messages("dataCite.publicationYear"):</div>
+          <div class="metadata-value" property="datePublished">@year</div>
+        </div>
+      }
+
+      @metadata.formats.filter(_.nonEmpty).map { fmts =>
+        <div class="metadata-item">
+          <div class="metadata-label">@Messages("dataCite.format"):</div>
+          <ul class="metadata-value metadata-value-list">
+          @fmts.map { fmt =>
+            <li class="format-item" property="format">@fmt</li>
+          }
+          </ul>
+        </div>
+      }
+
+      @metadata.sizes.filter(_.nonEmpty).map { sizes =>
+        <div class="metadata-item">
+          <div class="metadata-label">@Messages("dataCite.size"):</div>
+          <ul class="metadata-value metadata-value-list">
+          @sizes.map { size =>
+            <li class="size-item">@size</li>
+          }
+          </ul>
+        </div>
+      }
+
+      @metadata.language.map { lang =>
+        <div class="metadata-item">
+          <div class="metadata-label">@Messages("dataCite.language"):</div>
+          <div class="metadata-value" property="language">@lang</div>
+        </div>
+      }
+
+      @metadata.version.map { version =>
+        <div class="metadata-item">
+          <div class="metadata-label">@Messages("dataCite.version"):</div>
+          <div class="metadata-value" property="version">@version</div>
+        </div>
+      }
+    </section>
+
+    @if(metadata.rightList.exists(_.nonEmpty)) {
+      <section class="sidebar-section" id="metadata-rights">
+        <header class="sidebar-header">
+          <h2>@Messages("pid.rights")</h2>
+        </header>
+        @metadata.rightList.toSeq.flatten.map { obj =>
+          <div class="metadata-item">
+            <div class="metadata-value" property="license">
+              @obj.schemeURI.map { uri =>
+              <a href="@uri" target="_blank">@obj.value</a>
+              }.getOrElse {
+                <span>@obj.value</span>
+              }
+            </div>
+          </div>
+        }
+      </section>
+    }
+
+    <section class="sidebar-section" id="metadata-citation">
+      <header class="sidebar-header">
+        <h2>@Messages("pid.citeThisItem")</h2>
+      </header>
+      <div class="citation-formats">
+        <div class="citation-result">
+          <div id="citation-text" class="citation-text"></div>
+        </div>
+        <div class="citation-controls">
+          <select id="citation-format-selector">
+            <option value="apa" selected>APA</option>
+            <option value="mla">MLA</option>
+            <option value="chicago">Chicago</option>
+            <option value="harvard">Harvard</option>
+            <option value="bibtex">BibTeX</option>
+            <option value="ris">RIS</option>
+          </select>
+          <button id="copy-citation" class="button-primary">
+            <i class="fa fa-copy"></i>
+            Copy
+          </button>
+        </div>
+        <div class="citation-copied" style="display: none;">Citation copied!</div>
+      </div>
+
+
+    </section>
+
+    @if(metadata.dates.exists(_.nonEmpty)) {
+      <section class="sidebar-section" id="metadata-dates">
+        <header class="sidebar-header">
+          <h2>@Messages("dataCite.dates")</h2>
+        </header>
+        @metadata.dates.toSeq.flatten.map { obj =>
+          <div class="metadata-item">
+            <div class="metadata-label">@Messages("dataCite.dateType." + obj.dateType):</div>
+            <div class="metadata-value" property="@datePropertyAttr(obj.dateType)">@obj.date</div>
+          </div>
+        }
+      </section>
+    }
+  </aside>
 }

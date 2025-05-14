@@ -23,7 +23,7 @@ class DoiControllerSpec extends AppSpec with DatabaseSupport {
 
       status(result) mustBe OK
       contentType(result) mustBe Some("text/html")
-      contentAsString(result) must include ("\"total\":1")
+      contentAsString(result) must include ("Total Pages: 2") // FIXME: better test
     }
 
     "fetch a DOI as JSON" in {

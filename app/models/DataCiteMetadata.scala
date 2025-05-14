@@ -9,7 +9,9 @@ import play.api.libs.json.{Json, Reads}
 
 
 /**
- * Main class representing a complete DataCite metadata record
+ * Main class representing a complete DataCite metadata record.
+ *
+ * Note: the properties are named to match the DataCite JSON schema.
  */
 case class DataCiteMetadata(
   identifiers: Seq[Identifier],
@@ -27,13 +29,33 @@ case class DataCiteMetadata(
   sizes: Option[Seq[String]] = None,
   formats: Option[Seq[String]] = None,
   version: Option[String] = None,
-  rightsSeq: Option[Seq[Rights]] = None,
+  rightList: Option[Seq[Rights]] = None,
   descriptions: Option[Seq[Description]] = None,
   geoLocations: Option[Seq[GeoLocation]] = None,
   fundingReferences: Option[Seq[FundingReference]] = None,
   relatedItems: Option[Seq[RelatedItem]] = None
 ) {
   def title: Option[String] = titles.map(_.title).headOption
+
+  def hasVersions: Boolean =
+    relatedIdentifiers.toSeq.flatten.exists { relatedIdentifier =>
+      relatedIdentifier.relationType == RelationType.HasVersion ||
+        relatedIdentifier.relationType == RelationType.IsVersionOf ||
+        relatedIdentifier.relationType == RelationType.IsNewVersionOf ||
+        relatedIdentifier.relationType == RelationType.IsPreviousVersionOf
+    }
+
+  def hasTranslations: Boolean =
+    relatedIdentifiers.toSeq.flatten.exists { relatedIdentifier =>
+      relatedIdentifier.relationType == RelationType.IsTranslationOf ||
+        relatedIdentifier.relationType == RelationType.HasTranslation
+    }
+
+  def hasSupplement: Boolean =
+    relatedIdentifiers.toSeq.flatten.exists { relatedIdentifier =>
+      relatedIdentifier.relationType == RelationType.IsSupplementTo ||
+        relatedIdentifier.relationType == RelationType.IsSupplementedBy
+    }
 }
 
 object DataCiteMetadata {
@@ -128,7 +150,7 @@ case class Contributor(
  */
 case class Date(
   date: String, // ISO8601 date format
-  dateType: String,
+  dateType: DateType.Value,
   dateInformation: Option[String] = None
 )
 
