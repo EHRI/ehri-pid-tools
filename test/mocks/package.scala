@@ -14,12 +14,6 @@ package object mocks {
     val quoted = java.util.regex.Pattern.quote(apiBaseUrl)
     val regex = s"^$quoted/(.+)".r
 
-    val knownDois = List(
-      "10.1234/5678",
-      "10.2345/6789",
-      "10.3456/7890"
-    )
-
     MockWS {
 
       case (GET, `apiBaseUrl`) => Action {

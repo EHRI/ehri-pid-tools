@@ -15,6 +15,7 @@ import play.api.libs.json.{JsError, JsNumber, JsObject, JsResult, JsString, JsSu
  * Note: the properties are named to match the DataCite JSON schema.
  */
 case class DataCiteMetadata(
+  state: Option[DoiState.Value] = None,
   identifiers: Seq[Identifier],
   creators: Seq[Creator],
   titles: Seq[Title],
@@ -30,7 +31,7 @@ case class DataCiteMetadata(
   sizes: Option[Seq[String]] = None,
   formats: Option[Seq[String]] = None,
   version: Option[String] = None,
-  rightList: Option[Seq[Rights]] = None,
+  rightsList: Option[Seq[Rights]] = None,
   descriptions: Option[Seq[Description]] = None,
   geoLocations: Option[Seq[GeoLocation]] = None,
   fundingReferences: Option[Seq[FundingReference]] = None,
@@ -234,11 +235,11 @@ case class RelatedIdentifier(
  * Represents rights information
  */
 case class Rights(
-  value: String,
+  rights: String,
   rightsIdentifier: Option[String] = None,
   rightsIdentifierScheme: Option[String] = None,
-  schemeURI: Option[String] = None,
-  rightsURI: Option[String] = None,
+  schemeUri: Option[String] = None,
+  rightsUri: Option[String] = None,
   lang: Option[String] = None
 )
 

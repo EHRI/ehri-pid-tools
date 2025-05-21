@@ -2,16 +2,18 @@
 
 <div class="target-card">
   <div class="target-img">
-    @if(image.nonEmpty) {
-      <img src="@image" alt="Image for item">
-    } else {
-      <img src="@routes.Assets.versioned("images/target-image-placeholder.svg")" alt="Image for item">
-    }
+    <a href="@url">
+      @if(image.nonEmpty) {
+        <img src="@image" alt="Image for item">
+      } else {
+        <img src="@routes.Assets.versioned("images/target-image-placeholder.svg")" alt="Image for item">
+      }
+    </a>
   </div>
   <div class="target-info">
       <header class="target-header">
         <h2 class="target-title" property="name">
-          <span>@title</span>
+          <a href="@url">@title</a>
         </h2>
       </header>
       <div class="target-description">

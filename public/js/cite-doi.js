@@ -1,10 +1,69 @@
 
+function showCopyMessage() {
+  console.log("Copied info to clipboard...");
+}
+
+function legacyCopy(text) {
+  console.log( 'Using legacy copy method...' );
+  // Create a temporary textarea element.
+  const textarea = document.createElement( 'textarea' );
+  textarea.value = text;
+
+  // Make it non-editable to avoid focus and ensure it's not visible.
+  textarea.setAttribute( 'readonly', '' );
+  textarea.style.position = 'absolute';
+  textarea.style.left     = '-9999px';
+
+  document.body.appendChild( textarea );
+
+  // Check if the user is on iOS.
+  const isIOS = navigator.userAgent.match( /ipad|iphone/i );
+
+  if (isIOS) {
+    // iOS doesn't allow programmatic selection normally.
+    // Create a selectable range.
+    const range = document.createRange();
+    range.selectNodeContents( textarea );
+
+    const selection = window.getSelection();
+    selection.removeAllRanges();
+    selection.addRange( range );
+    textarea.setSelectionRange( 0, 999999 );
+  } else {
+    // Select the text for other devices.
+    textarea.select();
+  }
+
+  try {
+    // Execute copy command.
+    const successful = document.execCommand( 'copy' );
+
+    if (successful) {
+      showCopyMessage();
+    } else {
+      console.error( 'Copy command failed' );
+    }
+  } catch (err) {
+    console.error( 'Error during copy: ', err );
+  }
+
+  // Clean up.
+  document.body.removeChild( textarea );
+}
+
 function copyToClipboard(text) {
-  navigator.clipboard.writeText(text).then(function () {
-    console.log('Copying to clipboard was successful!');
-  }, function (err) {
-    console.error('Could not copy text: ', err);
-  });
+  // Try using the Clipboard API (modern browsers).
+  if (navigator.clipboard && window.isSecureContext) {
+    navigator.clipboard.writeText( text )
+        .then( showCopyMessage )
+        .catch( ()	=> legacyCopy( text ) );
+  } else {
+    console.log( navigator.clipboard, window.isSecureContext );
+    // Use legacy method for older browsers or non-secure contexts.
+    legacyCopy( text );
+  }
+
+  return true;
 }
 
 // Function to update the citation text based on selected format
@@ -77,12 +136,15 @@ function interceptXHRUrl(originalUrl, replacementUrl, once = false) {
 document.onreadystatechange = function () {
   if (document.readyState === "complete") {
 
-    interceptXHRUrl('https://doi.org/', 'https://api.test.datacite.org/', true);
+    if (!productionDOI) {
+      interceptXHRUrl('https://doi.org/', 'https://api.test.datacite.org/dois/', true);
+    }
     const cite = new Cite(doi);
     const citationText = document.getElementById('citation-text');
-    const citeButton = document.getElementById('doi-cite-action');
+    const citeButton = document.getElementById('copy-citation');
     const citationFormatSelector = document.getElementById('citation-format-selector');
     const citationFormat = citationFormatSelector.value;
+    const citationCopied = document.getElementById('citation-copied');
     citationText.textContent = getCitationText(cite, citationFormat);
 
     // Event listener for format selector change
@@ -93,12 +155,11 @@ document.onreadystatechange = function () {
 
     citeButton.addEventListener('click', function (event) {
       event.preventDefault();
-      const citationCopied = document.querySelector('.citation-copied');
-      const copyCitationButton = document.getElementById('copy-citation');
-      const citationResult = document.querySelector('.citation-result');
-      const citationControls = document.querySelector('.citation-controls');
-
-      citationText.textContent = getCitationText(cite, citationFormat);
+      copyToClipboard(citationText.textContent);
+      citationCopied.classList.add('flash-active');
+      setTimeout(function() {
+        citationCopied.classList.remove('flash-active');
+      }, 1000);
     });
   }
 };

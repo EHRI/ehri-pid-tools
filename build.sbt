@@ -1,4 +1,4 @@
-name := """ehri-pid-tools"""
+name := """ept"""
 organization := "eu.ehri.project"
 
 version := "1.0-SNAPSHOT"
@@ -47,3 +47,6 @@ Universal / mappings := (Universal / mappings).value.filterNot { case (f, s) =>
 
 // Adds additional packages into conf/routes
 // play.sbt.routes.RoutesKeys.routesImport += "eu.ehri.project.binders._"
+
+// In the build artefact, don't include the app name
+topLevelDirectory := None

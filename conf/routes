@@ -5,18 +5,18 @@ GET           /versioning                            controllers.HomeController.
 
 # DOI operations
 GET           /dois                                  controllers.DoiController.index()
-GET           /dois/:prefix/:suffix                  controllers.DoiController.get(prefix: String, suffix: String)
+GET           /dois/:prefix/*suffix                  controllers.DoiController.get(prefix: String, suffix: String)
 GET           /dois/example                          controllers.DoiController.example()
 +nocsrf
 POST          /dois                                  controllers.DoiController.register()
 +nocsrf
-PUT           /dois/:prefix/:suffix                  controllers.DoiController.update(prefix: String, suffix: String)
+PUT           /dois/:prefix/*suffix                  controllers.DoiController.update(prefix: String, suffix: String)
 +nocsrf
-DELETE        /dois/:prefix/:suffix                  controllers.DoiController.delete(prefix: String, suffix: String)
+DELETE        /dois/:prefix/*suffix                  controllers.DoiController.delete(prefix: String, suffix: String)
 +nocsrf
-POST          /dois/:prefix/:suffix/tombstone        controllers.DoiController.tombstone(prefix: String, suffix: String)
+POST          /dois/:prefix/*suffix/tombstone        controllers.DoiController.tombstone(prefix: String, suffix: String)
 +nocsrf
-DELETE        /dois/:prefix/:suffix/tombstone        controllers.DoiController.deleteTombstone(prefix: String, suffix: String)
+DELETE        /dois/:prefix/*suffix/tombstone        controllers.DoiController.deleteTombstone(prefix: String, suffix: String)
 
 # Preview
 GET           /preview                               controllers.PreviewController.preview(url: String ?= "")

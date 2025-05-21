@@ -5,6 +5,7 @@ import models.{DoiMetadata, DoiMetadataList}
 
 import scala.concurrent.Future
 
+
 @ImplementedBy(classOf[WsDoiService])
 trait DoiService {
 

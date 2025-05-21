@@ -45,6 +45,15 @@ class DoiControllerSpec extends AppSpec with DatabaseSupport {
       contentAsString(result) must include ("DataCite Metadata Schema")
     }
 
+    "fetch a DOI containing multiple path sections" in {
+      val request = FakeRequest(GET, routes.DoiController.get(prefix, "1234/1234/1234/1234").url)
+      val result = controller.get(prefix, suffix).apply(request)
+
+      status(result) mustBe OK
+      contentType(result) mustBe Some("text/html")
+      contentAsString(result) must include ("DataCite Metadata Schema")
+    }
+
     "handle 404s with JSON" in {
       val request = FakeRequest(GET, routes.DoiController.get("NOT", "FOUND").url)
         .withHeaders("Accept" -> "application/vnd.api+json")
@@ -54,7 +63,7 @@ class DoiControllerSpec extends AppSpec with DatabaseSupport {
       contentType(result) mustBe Some("application/vnd.api+json")
       // NB: this is the error message we get when we don't have the DOI registered
       // in our PID service.
-      contentAsString(result) must include ("The DOI you provided does not exist or is not valid")
+      contentAsString(result) must include ("The DOI you provided does not exist, is unpublished, or is not valid")
     }
 
     "handle 404s with HTML" in {
@@ -169,6 +178,15 @@ class DoiControllerSpec extends AppSpec with DatabaseSupport {
       val request = FakeRequest(DELETE, routes.DoiController.deleteTombstone(prefix, altSuffix).url)
         .withHeaders("Authorization" -> basicAuthString)
       val result = call(controller.deleteTombstone(prefix, altSuffix), request)
+      status(result) mustBe NO_CONTENT
+    }
+
+    "tombstone DOIs with multiple path sections" in {
+      val request = FakeRequest(POST, routes.DoiController.tombstone(prefix, "1234/1234/1234/1234").url)
+        .withHeaders("Authorization" -> basicAuthString)
+        .withBody(JsonApiData(Json.obj("reason" -> "Test reason")))
+      val result = call(controller.tombstone(prefix, "1234/1234/1234/1234"), request)
+
       status(result) mustBe NO_CONTENT
     }
   }

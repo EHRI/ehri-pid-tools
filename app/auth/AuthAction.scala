@@ -1,16 +1,16 @@
 package auth
 
-import play.api.{Configuration, Environment}
-import play.api.http.HttpConfiguration
+import play.api.http.{HeaderNames, HttpConfiguration}
 import play.api.i18n.{I18nComponents, Messages}
-import play.api.libs.json.{JsObject, Json}
+import play.api.libs.json.Json
 import play.api.mvc.Results.Unauthorized
-import play.api.mvc.{ActionBuilder, AnyContent, BodyParsers, RequestHeader, Result}
+import play.api.mvc.{ActionBuilder, AnyContent, BodyParsers, Result}
+import play.api.{Configuration, Environment}
 import services.AuthService
 
 import javax.inject.Inject
-import scala.concurrent.{ExecutionContext, Future}
 import scala.concurrent.Future.{successful => immediate}
+import scala.concurrent.{ExecutionContext, Future}
 
 /**
  * AuthAction is an ActionBuilder that checked
@@ -47,7 +47,7 @@ case class AuthAction @Inject()(
   }.as("application/vnd.api+json")
 
   override def invokeBlock[A](request: play.api.mvc.Request[A], block: AuthRequest[A] => Future[play.api.mvc.Result]): Future[Result] = {
-    val token = request.headers.get("Authorization").flatMap(_.split(" ").lift(1))
+    val token = request.headers.get(HeaderNames.AUTHORIZATION).flatMap(_.split(" ").lift(1))
     token match {
       case Some(t) =>
         authService.authenticate(t).flatMap {

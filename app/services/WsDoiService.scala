@@ -3,6 +3,7 @@ package services
 import models.{DoiMetadata, DoiMetadataList, JsonApiData}
 import org.apache.pekko.util.ByteString
 import play.api.Configuration
+import play.api.http.Status
 import play.api.http.Status.{CREATED, NO_CONTENT, OK}
 import play.api.libs.json.{JsError, JsSuccess, Json, Reads}
 import play.api.libs.ws.{BodyWritable, InMemoryBody, WSClient, WSResponse}
@@ -37,36 +38,42 @@ case class WsDoiService @Inject()(ws: WSClient, config: Configuration)(implicit 
   }
 
   override def getDoiMetadata(doi: String): Future[DoiMetadata] = {
-    ws.url(s"$doiBaseUrl/$doi").withHttpHeaders(headers.toSeq: _*).get().map { response =>
+    ws.url(s"$doiBaseUrl/$doi")
+        .withHttpHeaders(allHeaders.toSeq: _*).get().map { response =>
       val jsonApiData = parseResponse[JsonApiData](response)
       jsonApiData.data.as[DoiMetadata]
     }
   }
 
   override def registerDoi(metadata: DoiMetadata): Future[DoiMetadata] = {
-    ws.url(doiBaseUrl).withHttpHeaders(headers.toSeq: _*).post(metadata).map { response =>
+    ws.url(doiBaseUrl).withHttpHeaders(allHeaders.toSeq: _*).post(metadata).map { response =>
       val jsonApiData = parseResponse[JsonApiData](response, CREATED)
       jsonApiData.data.as[DoiMetadata]
     }
   }
 
   override def updateDoi(doi: String, metadata: DoiMetadata): Future[DoiMetadata] = {
-    ws.url(s"$doiBaseUrl/$doi").withHttpHeaders(headers.toSeq: _*).put(metadata).map { response =>
+    ws.url(s"$doiBaseUrl/$doi").withHttpHeaders(allHeaders.toSeq: _*).put(metadata).map { response =>
       val jsonApiData = parseResponse[JsonApiData](response)
       jsonApiData.data.as[DoiMetadata]
     }
   }
 
   override def deleteDoi(doi: String): Future[Boolean] = {
-    ws.url(s"$doiBaseUrl/$doi").withHttpHeaders(headers.toSeq: _*).delete().map { response =>
+    ws.url(s"$doiBaseUrl/$doi").withHttpHeaders(allHeaders.toSeq: _*).delete().map { response =>
       response.status == NO_CONTENT
     }
   }
 
+  private def allHeaders: Map[String, String] = headers ++ authHeaders
+
   private def headers: Map[String, String] = Map(
-    "Authorization" -> s"Basic $providerAuth",
     "Content-Type" -> "application/vnd.api+json",
     "Accept" -> "application/vnd.api+json"
+  )
+
+  private def authHeaders: Map[String, String] = Map(
+    "Authorization" -> s"Basic $providerAuth",
   )
 
   private def providerAuth: String = {
@@ -83,8 +90,10 @@ case class WsDoiService @Inject()(ws: WSClient, config: Configuration)(implicit 
         case JsError(errors) =>
           throw new RuntimeException(s"Failed to parse response: ${response.status} ${response.statusText} - $errors")
       }
+    } else if (response.status == Status.NOT_FOUND) {
+      throw DoiNotFound("errors.doi.notFound", Some(response.json))
     } else {
-      throw DoiServiceException("Unexpected DOI Service response", response.status, response.json)
+      throw DoiServiceException("errors.doi.exception", response.status, response.json)
     }
   }
 }

@@ -4,8 +4,14 @@ import org.apache.pekko.util.ByteString
 import play.api.libs.json._
 import play.api.libs.ws.{BodyWritable, InMemoryBody}
 
+object DoiState extends Enumeration with EnumToJSON {
+  val Draft = Value("draft")
+  val Registered = Value("registered")
+  val Findable = Value("findable")
+}
+
 case class DoiMetadata(id: Option[String], `type`: Option[String], attributes: JsValue) {
-  def state: String = (attributes \ "state").asOpt[String].getOrElse("draft")
+  def state: DoiState.Value = (attributes \ "state").asOpt[DoiState.Value].getOrElse(DoiState.Draft)
   def prefix: String = id.flatMap(_.split("/").headOption).getOrElse("")
   def suffix: String = id.flatMap(_.split("/").lift(1)).getOrElse("")
   def title: Option[String] = (attributes \ "titles" \ 0 \ "title").asOpt[String]

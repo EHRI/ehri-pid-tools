@@ -9,7 +9,7 @@ class SqlPidServiceSpec extends AppSpec with DatabaseSupport {
 
   "SqlPidService" should {
     "find all items of a given type" in {
-      await(pidService.findAll(PidType.DOI)).length mustBe 2
+      await(pidService.findAll(PidType.DOI)).length mustBe 3
     }
 
     "fetch pids" in {

@@ -1,12 +1,12 @@
 package controllers
 
 import auth.AuthAction
-import models.{Doi, DoiMetadata, JsonApiData, Pid, PidType, TombstoneReason}
+import models.{Doi, DoiMetadata, DoiState, JsonApiData, Pid, PidType, TombstoneReason}
 import play.api.i18n.{I18nSupport, Messages}
 import play.api.libs.json.JsError.toJson
 import play.api.libs.json.{JsError, JsSuccess, JsValue, Json, Reads}
 import play.api.mvc._
-import services.{DoiService, PidService}
+import services.{DoiNotFound, DoiService, PidService}
 
 import javax.inject._
 import scala.concurrent.ExecutionContext
@@ -24,6 +24,18 @@ class DoiController @Inject()(
 )(implicit ec: ExecutionContext, appConfig: AppConfig) extends BaseController with I18nSupport {
 
   private val logger = play.api.Logger(getClass)
+
+  private def jsonApiError(status: Status, message: String, args: String*)(implicit request: RequestHeader): Result = {
+    val errorResponse = Json.obj(
+      "errors" -> Json.arr(
+        Json.obj(
+          "status" -> status.header.status,
+          "title" -> Messages(message, args: _*)
+        )
+      )
+    )
+    status(errorResponse).as("application/vnd.api+json")
+  }
 
   // To override the max request size we unfortunately need to define our own body parser here:
   // The max value is drawn from config:
@@ -47,18 +59,6 @@ class DoiController @Inject()(
     }
   }
 
-  private def jsonApiError(status: Status, message: String, args: String*)(implicit request: RequestHeader): Result = {
-    val errorResponse = Json.obj(
-      "errors" -> Json.arr(
-        Json.obj(
-          "status" -> status.header.status,
-          "title" -> Messages(message, args: _*)
-        )
-      )
-    )
-    status(errorResponse).as("application/vnd.api+json")
-  }
-
   /**
    * Renders the list of DOIs.
    */
@@ -80,18 +80,21 @@ class DoiController @Inject()(
       target = fakePid.target,
       tombstone = fakePid.tombstone
     )
-    Ok(views.html.dois.show(fakePid, fakeDoi.metadata.asDataCiteMetadata))
+    Ok(views.html.dois.show(fakePid, fakeDoi.metadata.asDataCiteMetadata, prod = true))
   }
 
   def get(prefix: String, suffix: String): Action[AnyContent] = Action.async { implicit request =>
     pidService.findById(PidType.DOI, s"$prefix/$suffix").flatMap {
       case Some(pid) => doiService.getDoiMetadata(pid.value).map { doiMetadata =>
-        val status: Status = pid.tombstone.fold(Ok)(_ => Gone)
+        if (doiMetadata.state != DoiState.Findable && !appConfig.showHidden) {
+          throw DoiNotFound(Messages("errors.doi.notFound"))
+        }
+        val retStatus: Status = pid.tombstone.fold(Ok)(_ => Gone)
         render {
           case Accepts.Html() =>
-            status(views.html.dois.show(pid, doiMetadata.asDataCiteMetadata))
+            retStatus(views.html.dois.show(pid, doiMetadata.asDataCiteMetadata))
           case _ =>
-            status(Doi(doiMetadata, pid.target, pid.tombstone))
+            retStatus(Doi(doiMetadata, pid.target, pid.tombstone))
         }
       }
       case None => immediate(render {

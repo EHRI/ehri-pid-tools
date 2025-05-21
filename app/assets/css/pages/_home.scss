@@ -11,20 +11,6 @@
   padding: var(--margin-page-v) var(--margin-page-h);
 }
 
-.doi-banner {
-  display: flex;
-  align-items: center;
-  gap: 1rem;
-  padding: 1rem 1rem;
-  background-color: var(--theme-bg-accent);
-
-  .doi-identifier {
-    margin-right: auto;
-    font-size: 2rem;
-  }
-}
-
-
 .header.main {
   .header-menu {
     gap: 1rem;
@@ -38,86 +24,5 @@
     img {
       max-width: 120px;
     }
-  }
-}
-
-.metadata-item {
-  margin-bottom: 1rem;
-  display: flex;
-  gap: 1rem;
-}
-
-.metadata-label {
-  font-weight: bold;
-  margin-bottom: 0.25rem;
-  color: #555;
-}
-
-.metadata-value {
-  margin-bottom: 0.5rem;
-}
-
-
-.contributors-list {
-  list-style-type: none;
-  padding: 0;
-}
-
-.contributor-item {
-  margin-bottom: 0.5rem;
-  display: flex;
-  align-items: center;
-}
-
-.contributor-role {
-  color: #777;
-  margin-left: 0.5rem;
-  font-size: 0.9rem;
-}
-
-.contributor-orcid {
-  display: flex;
-
-  img {
-    height: var(--font-size-md);
-    margin-left: $space-sm;
-  }
-}
-
-.target a {
-  font-size: 2rem;
-}
-
-.target-card {
-  @include card();
-  padding: $space-md;
-
-  display: grid;
-  grid-gap: 1rem;
-    grid-template-areas:
-        "img header"
-        "img description"
-        "footer footer";
-
-  grid-template-columns: min-content 1fr;
-
-  .target-header {
-      grid-area: header;
-        font-size: var(--font-size-xl);
-  }
-  .target-img {
-      grid-area: img;
-    object-fit: cover;
-    img {
-      width: 10rem;
-      height: 10rem;
-    }
-  }
-  .target-description {
-    grid-area: description;
-  }
-  .target-footer {
-    font-size: var(--font-size-lg);
-    grid-area: footer;
   }
 }

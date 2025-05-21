@@ -26,9 +26,9 @@ class WsDoiServiceSpec extends AppSpec with MockWSHelpers {
     }
 
     "error if DOIs not found" in {
-      intercept[DoiServiceException] {
+      intercept[DoiNotFound] {
         await(wsDoiService.getDoiMetadata("NOT/FOUND")) // see mocks
-      }.status mustBe 404
+      }
     }
 
     "register a DOI" in {

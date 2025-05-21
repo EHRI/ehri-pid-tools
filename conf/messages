@@ -6,16 +6,26 @@ errors.notFound=404 Not Found
 errors.gone=410 Gone
 errors.gone.description=This is a valid item identifier but the item is no longer available.
 errors.badRequest=400 Bad Request
-errors.doi.notFound=The DOI you provided does not exist or is not valid.
+errors.doi.notFound=The DOI you provided does not exist, is unpublished, or is not valid.
+errors.doi.exception=Unexpected response: {0}
 errors.doi.tombstoneFailed=Error creating tombstone for DOI {0}.
 errors.doi.tombstoneNotFound=The DOI provided either does not exist, or is not tombstoned.
 
+notice=NB
 pagination.totalPages=Total Pages: {0,number,integer}
 
 pid.citeThisItem=Cite this item
+pid.citationCopied=Citation copied!
 pid.details=Details
 pid.rights=Rights
 
+dataCite.state=DOI State
+dataCite.state.draft=Draft
+dataCite.state.registered=Registered
+dataCite.state.findable=Findable
+dataCite.state.showingUnpublishedWarning=This page is configured to display information \
+  about unpublished DOIs. In normal operation this page would result in a "404 Not Found" error. \
+  Unpublished DOIs will not work with the citation widget.
 dataCite.creators=Creators
 dataCite.contributors=Contributors
 dataCite.version=Version
@@ -29,7 +39,15 @@ dataCite.language=Language
 dataCite.types.resourceType=Type
 dataCite.subjects=Subjects
 dataCite.rights=Rights
-dataCite.abstract=Abstract
+dataCite.otherInformation=Other Information
+dataCite.descriptionType.Abstract=Abstract
+dataCite.descriptionType.Methods=Methods
+dataCite.descriptionType.SeriesInformation=Series Information
+dataCite.descriptionType.TableOfContents=Table of Contents
+dataCite.descriptionType.TechnicalInfo=Technical Information
+dataCite.descriptionType.Other=Other Descriptive Information
+
+
 dataCite.description=Description
 dataCite.versions=Versions
 

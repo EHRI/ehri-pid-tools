@@ -1,28 +1,35 @@
-@(pid: Pid, metadata: DataCiteMetadata)(implicit request: RequestHeader, messages: Messages, config: AppConfig)
+@(pid: Pid, metadata: DataCiteMetadata, prod: Boolean = false)(implicit request: RequestHeader, messages: Messages, config: AppConfig)
+
+@headingIfNotEmpty(headingCode: String)(html: Html) = {
+  @if(!html.body.trim.isEmpty) {
+    <h2>@Messages(headingCode)</h2>
+    @html
+  }
+}
 
 @relatedIdentifierSection(relatedIdentifiers: Seq[RelatedIdentifier], `type`: RelationType.Value) = {
   @defining(relatedIdentifiers.filter(item => item.relationType == `type`)) { typeIdentifiers =>
-    @if(typeIdentifiers.nonEmpty) {
-      <h3>@Messages("dataCite.relatedIdentifiers.relationType." + `type`)</h3>
-      <div class="metadata-item">
-        <div class="metadata-value">
-        @for(obj <- typeIdentifiers) {
-          @obj.resourceTypeGeneral.map { rtg =>
-            <span class="resource-type-general">
-              @Messages("dataCite.resourceTypeGeneral." + rtg)
-            </span>
+    <div class="related-identifier-type">
+      @if(typeIdentifiers.nonEmpty) {
+        <h4>@Messages("dataCite.relatedIdentifiers.relationType." + `type`)</h4>
+        <ul class="related-identifier-list">
+          @for(obj <- typeIdentifiers) {
+            <li class="related-identifiers">
+              @obj.resourceTypeGeneral.map { rtg =>
+                <span class="resource-type-general">
+                  @Messages("dataCite.resourceTypeGeneral." + rtg)
+                </span>
+              }
+              @config.resolvePid(obj.relatedIdentifier, obj.relatedIdentifierType, prod).map { pidUrl =>
+                <a href="@pidUrl">@pidUrl</a> (@obj.relatedIdentifierType)
+              }.getOrElse {
+                @obj.relatedIdentifier (@obj.relatedIdentifierType)
+              }
+            </li>
           }
-          @if(obj.relatedIdentifierType == RelatedIdentifierType.DOI) {
-            <a href="@config.doiUrl(obj.relatedIdentifier)">
-            @config.doiUrl(obj.relatedIdentifier)
-            </a>
-            (DOI)
-          }
-          @* {% if not loop.last %}, {% endif %}*@
-        }
-        </div>
-      </div>
-    }
+        </ul>
+      }
+    </div>
   }
 }
 
@@ -38,54 +45,47 @@
 }
 
 @extraHead = {
-  <meta name="DC.identifier" content="@config.doiUrl(pid.value)">
+  <meta name="DC.identifier" content="@config.doiUrl(pid.value, prod)">
 
   <script src="https://cdnjs.cloudflare.com/ajax/libs/citation-js/0.7.17/citation.js" crossorigin="anonymous"
   referrerpolicy="no-referrer"></script>
   <script>
           const doi = "@pid.value"; // FAKE
-          const doiUrl = "@config.doiUrl(pid.value)";
+          const doiUrl = "@config.doiUrl(pid.value, prod)";
           const Cite = require('citation-js');
+          const productionDOI = @prod;
 
-          document.addEventListener('DOMContentLoaded', function () {
-              let previewContainer = document.getElementById("preview-container");
-              if (previewContainer) {
-                const url = previewContainer.getAttribute("data-url");
-                if (url) {
-                  fetch("@routes.PreviewController.preview(url=pid.target))").then(r => {
-                    r.text().then(text => {
-                      previewContainer.innerHTML = text;
-                      previewContainer.classList.add("loaded");
-                    });
+          let loadPreview = function () {
+            let previewContainer = document.getElementById("preview-container");
+            if (previewContainer) {
+              const url = previewContainer.getAttribute("data-url");
+              if (url) {
+                fetch("@routes.PreviewController.preview(url=pid.target)").then(r => {
+                  r.text().then(text => {
+                    previewContainer.innerHTML = text;
+                    previewContainer.classList.add("loaded");
                   });
-                }
+                });
               }
-          }, false);
+            }
+          };
+
+          document.addEventListener('DOMContentLoaded', loadPreview, false);
   </script>
   <script src="@routes.Assets.versioned("js/cite-doi.js")"></script>
 }
 
-@views.html.layout.base(metadata.title.getOrElse(Messages("doi.doi", pid.value)), extraHead = extraHead, vocab = Some("http://purl.org/dc/terms/")) {
+@views.html.layout.base(metadata.title.getOrElse(Messages("doi.doi", pid.value)), extraHead = extraHead, vocab = Some("http://purl.org/dc/terms/"), bodyClasses = Seq("landing-page")) {
   <section class="doi-banner">
     <div class="doi-identifier">
       <span property="identifier">
-        <a href="@config.doiUrl(pid.value)">@config.doiUrl(pid.value)</a>
+        <a href="@config.doiUrl(pid.value, prod)">@config.doiUrl(pid.value, prod)</a>
       </span>
     </div>
     <div class="doi-actions">
-      <a href="#" id="doi-cite-action" class="button-primary">Cite</a>
       <a href="#" id="doi-share-action" class="button-primary">Share</a>
     </div>
   </section>
-
-  @for(related <- metadata.relatedIdentifiers.toSeq.flatten) {
-    @if(related.relationType == RelationType.IsPreviousVersionOf && related.relatedIdentifierType == RelatedIdentifierType.DOI) {
-      <div class="alert alert-warning" role="alert">
-        There is a newer version of this item available at:
-        <a href="@config.doiUrl(related.relatedIdentifier)">@config.doiUrl(related.relatedIdentifier)</a>
-      </div>
-    }
-  }
 
   <article class="metadata-section" typeof="ScholarlyArticle" resource="#publication">
 
@@ -104,8 +104,27 @@
       }
     </header>
 
+    @for(related <- metadata.relatedIdentifiers.toSeq.flatten) {
+      @if(related.relationType == RelationType.IsPreviousVersionOf && related.relatedIdentifierType == RelatedIdentifierType.DOI) {
+        <div class="alert alert-warning" role="alert">
+          There is a newer version of this item available at:
+          <a href="@config.doiUrl(related.relatedIdentifier, prod)">@config.doiUrl(related.relatedIdentifier, prod)</a>
+        </div>
+      }
+    }
+
+    @metadata.state.map { state =>
+      @if(state != DoiState.Findable) {
+        <div class="alert alert-warning" role="alert">
+          <strong>@Messages("notice"): </strong>
+          @Messages("dataCite.state.showingUnpublishedWarning")
+        </div>
+      }
+    }
+
     @if(metadata.creators.nonEmpty) {
       <div class="metadata-item">
+        <div class="metadata-label">@Messages("dataCite.creators")</div>
         <ul class="metadata-value metadata-value-list">
           @metadata.creators.map { obj =>
             <li class="contributor-item">
@@ -132,9 +151,9 @@
     @metadata.descriptions.toSeq.flatten.map { description =>
       <div class="metadata-item" property="description">
         <label class="metadata-label">
-          @if(description.descriptionType.contains(DescriptionType.Abstract)) {
-            @Messages("dataCite.abstract")
-          } else {
+          @description.descriptionType.map { descType =>
+            @Messages(s"dataCite.descriptionType.$descType")
+          }.getOrElse {
             @Messages("dataCite.description")
           }
         </label>
@@ -144,70 +163,70 @@
       </div>
     }
 
-
     @pid.tombstone.map { tombstone =>
-    <div class="alert alert-danger" role="alert">
-      <h1>@Messages("errors.gone")</h1>
-      <p>@Messages("errors.gone.description")</p>
-    </div>
+      <div class="preview-container">
+        <div class="alert alert-danger" role="alert">
+          <h1>@Messages("errors.gone")</h1>
+          <p>@Messages("errors.gone.description")</p>
+        </div>
+      </div>
     }.getOrElse {
-      <div id="preview-container" data-url="@pid.target"></div>
+      <div id="preview-container" data-url="@pid.target">
+        @views.html.preview("", "", "<i class=\"fa fa-spin fa-circle-o-notch fa-2x\"></i>", "")
+      </div>
     }
 
+    @headingIfNotEmpty("dataCite.otherInformation") {
     @if(metadata.contributors.exists(_.nonEmpty)) {
-      <h2>@Messages("dataCite.contributors")</h2>
-      @metadata.contributors.toSeq.flatten.map { obj =>
-        <ul class="contributors-list">
-          <li class="contributor-item">
-            <span property="author" typeof="Person">
-              <span property="name">@obj.name</span>
-            </span>
-            <span class="contributor-role">@obj.contributorType</span>
-            @obj.nameIdentifiers.toSeq.flatten.map { ident =>
-              @if(ident.nameIdentifierScheme == "ORCID") {
-                <span class="contributor-orcid">
-                  <a href="@ident.nameIdentifier" target="_blank">
-                    <img src="@routes.Assets.versioned("images/orcid-auth.svg")" alt="ORCID logo">
-                  </a>
-                </span>
-              }
-            }
-          </li>
-        </ul>
-      }
-    }
-
-    @if(metadata.subjects.exists(_.nonEmpty)) {
-      <h2>@Messages("dataCite.subjects")</h2>
       <div class="metadata-item">
+        <div class="metadata-label">@Messages("dataCite.contributors")</div>
         <div class="metadata-value">
-        @metadata.subjects.toSeq.flatten.map { obj =>
-          <span property="subject">@obj.subject</span>,
-        }
+          @metadata.contributors.toSeq.flatten.map { obj =>
+            <ul class="contributors-list">
+              <li class="contributor-item">
+                <span property="author" typeof="Person">
+                  <span property="name">@obj.name</span>
+                </span>
+                <span class="contributor-role">@obj.contributorType</span>
+                @obj.nameIdentifiers.toSeq.flatten.map { ident =>
+                  @if(ident.nameIdentifierScheme == "ORCID") {
+                    <span class="contributor-orcid">
+                      <a href="@ident.nameIdentifier" target="_blank">
+                        <img src="@routes.Assets.versioned("images/orcid-auth.svg")" alt="ORCID logo">
+                      </a>
+                    </span>
+                  }
+                }
+              </li>
+            </ul>
+          }
         </div>
       </div>
     }
 
-    @metadata.rightList.filter(_.nonEmpty).map { rights =>
-      <h2>@Messages("dataCite.rights")</h2>
-      @rights.map { obj =>
-        <div class="metadata-item">
-          <div class="metadata-value" property="license">
-            @obj.schemeURI.map { uri =>
-              <a href="@uri" target="_blank">@obj.value</a>
-            }.getOrElse {
-              <span>@obj.value</span>
+    @if(metadata.subjects.exists(_.nonEmpty)) {
+      <div class="metadata-item">
+        <div class="metadata-label">@Messages("dataCite.subjects")</div>
+        <div class="metadata-value">
+          <ul>
+            @metadata.subjects.toSeq.flatten.map { obj =>
+              <li><span property="subject">@obj.subject</span></li>
             }
-          </div>
+          </ul>
         </div>
-      }
+      </div>
     }
 
     @if(metadata.relatedIdentifiers.exists(_.nonEmpty)) {
-      <h2>@Messages("dataCite.relatedIdentifiers")</h2>
-      @RelationType.values.toSeq.map { relationType =>
-        @relatedIdentifierSection(metadata.relatedIdentifiers.toSeq.flatten, relationType)
-      }
+      <div class="metadata-item">
+        <div class="metadata-label">@Messages("dataCite.relatedIdentifiers")</div>
+        <div class="metadata-value">
+          @RelationType.values.toSeq.map { relationType =>
+            @relatedIdentifierSection(metadata.relatedIdentifiers.toSeq.flatten, relationType)
+          }
+        </div>
+      </div>
+    }
     }
 
   </article>
@@ -222,8 +241,8 @@
           @if(obj.relationType == RelationType.IsVersionOf && obj.relatedIdentifierType == RelatedIdentifierType.DOI) {
             <div class="metadata-item">
               <div class="metadata-value">
-                <a href="@config.doiUrl(obj.relatedIdentifier)">
-                @config.doiUrl(obj.relatedIdentifier)
+                <a href="@config.doiUrl(obj.relatedIdentifier, prod)">
+                @config.doiUrl(obj.relatedIdentifier, prod)
                 </a>
               </div>
             </div>
@@ -236,6 +255,13 @@
       <header class="sidebar-header">
         <h2>@Messages("pid.details")</h2>
       </header>
+
+      @metadata.state.map { state =>
+        <div class="metadata-item">
+          <div class="metadata-label">@Messages("dataCite.state"):</div>
+          <div class="metadata-value">@Messages("dataCite.state." + state)</div>
+        </div>
+      }
 
       <div class="metadata-item">
         <div class="metadata-label">@Messages("dataCite.types.resourceType"):</div>
@@ -304,18 +330,18 @@
       }
     </section>
 
-    @if(metadata.rightList.exists(_.nonEmpty)) {
+    @if(metadata.rightsList.exists(_.nonEmpty)) {
       <section class="sidebar-section" id="metadata-rights">
         <header class="sidebar-header">
           <h2>@Messages("pid.rights")</h2>
         </header>
-        @metadata.rightList.toSeq.flatten.map { obj =>
+        @metadata.rightsList.toSeq.flatten.map { obj =>
           <div class="metadata-item">
             <div class="metadata-value" property="license">
-              @obj.schemeURI.map { uri =>
-              <a href="@uri" target="_blank">@obj.value</a>
+              @obj.schemeUri.map { uri =>
+              <a href="@uri" target="_blank">@obj.rights</a>
               }.getOrElse {
-                <span>@obj.value</span>
+                <span>@obj.rights</span>
               }
             </div>
           </div>
@@ -345,8 +371,8 @@
             <i class="fa fa-copy"></i>
             Copy
           </button>
+          <span id="citation-copied">@Messages("pid.citationCopied")</span>
         </div>
-        <div class="citation-copied" style="display: none;">Citation copied!</div>
       </div>
 
 
