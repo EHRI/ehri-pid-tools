@@ -1,0 +1,140 @@
+@import "../variables";
+
+// This section styles everything inside a page-content div, which is
+// typically markdown and this not styleable by the user.
+.page-content {
+
+  // Modern clearfix: prevent floats clearing box
+  display: flow-root;
+
+  // Standard padding is page margins
+  padding: var(--margin-page-v) var(--margin-page-h);
+
+  // On laptop width and above, use a wide content padding
+  @media (min-width: $breakpoint-laptop) {
+    padding: var(--padding-page-content-v) var(--padding-page-content-h);
+  }
+
+  h1,
+  h2
+  {
+    margin-top: 0;
+  }
+  h1:last-child,
+  h2:last-child
+  {
+    margin-bottom: 0;
+  }
+
+  p {
+    > a {
+      // Links inside paragraphs are styled differently to the default,
+      // and have an animated underline on hover
+      color: var(--theme-fg-muted);
+      font-weight: bold;
+      text-decoration: underline;
+      text-decoration-color: var(--theme-bg-accent);
+      text-decoration-thickness: 0.25rem;
+      background-image: linear-gradient(to bottom, transparent calc(100%), var(--theme-bg-accent) calc(100%));
+      background-position: bottom;
+      background-repeat: no-repeat;
+      background-size: 100% 0;
+      transition-duration: 0.2s;
+      transition-property: background-color background-size color;
+
+      &:hover {
+        color: var(--theme-fg-accent);
+        background-image: linear-gradient(to bottom, var(--theme-bg-accent) calc(100% - .5rem), var(--theme-bg-accent) calc(100% - .5rem));
+        background-size: 100% 100%;
+      }
+    }
+  }
+
+  // Intro text is larger than normal
+  .intro,
+  .intro > p
+  {
+    font-size: var(--font-size-lg);
+    line-height: 2.25rem;
+    font-weight: var(--font-weight-bold);
+    font-family: var(--font-family-headings);
+  }
+
+  .intro.intro-large {
+    font-size: var(--font-size-xl);
+  }
+
+  // Standard text lists have a non-standard bullet
+  ul > li {
+    list-style-type: '—  ';
+  }
+
+  // Tables
+  table {
+    border-collapse: collapse;
+    width: 100%;
+    margin: 4rem 0;
+    font-size: 0.9rem;
+    font-family: var(--font-family-headings);
+  }
+
+  table,
+  td,
+  th
+  {
+    border: 1px solid #8f8f8f;
+    text-align: left;
+    vertical-align: top;
+  }
+
+  tbody tr:hover {
+    background: var(--theme-bg-accent-gradient);
+  }
+
+  thead {
+    background-color: var(--theme-bg-accent);
+  }
+
+  th,
+  td
+  {
+    padding: 0.8vw 1vw;
+  }
+
+  // Footnote links
+  sup a {
+    display: inline;
+    font-size: 0.8rem;
+    font-family: var(--font-family-headings);
+    font-weight: bold;
+    color: var(--theme-fg-accent);
+    text-decoration: none;
+    background-image: none;
+  }
+
+  // Figures with a caption
+  figure {
+    display: flex;
+    flex-direction: column;
+
+    margin: 0 0 2rem;
+    background-color: var(--theme-bg-accent);
+
+    figcaption {
+      padding: 0.4vw 1.2vw
+    }
+
+    img {
+      width: 100%;
+    }
+
+    h4,
+    h5 {
+      margin: 1rem 0;
+      font-size: 1.2625rem;
+    }
+    p {
+      font-size: var(--font-size-sm);
+    }
+  }
+}

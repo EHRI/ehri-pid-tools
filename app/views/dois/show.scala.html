@@ -76,6 +76,7 @@
 }
 
 @views.html.layout.base(metadata.title.getOrElse(Messages("doi.doi", pid.value)), extraHead = extraHead, vocab = Some("http://purl.org/dc/terms/"), bodyClasses = Seq("landing-page")) {
+  <section class="page-content">
   <section class="doi-banner">
     <div class="doi-identifier">
       <span property="identifier">
@@ -88,7 +89,6 @@
   </section>
 
   <article class="metadata-section" typeof="ScholarlyArticle" resource="#publication">
-
     <header class="metadata-titles">
       @metadata.titles.headOption.map { obj =>
         <h1 property="title">@obj.title</h1>
@@ -177,58 +177,57 @@
     }
 
     @headingIfNotEmpty("dataCite.otherInformation") {
-    @if(metadata.contributors.exists(_.nonEmpty)) {
-      <div class="metadata-item">
-        <div class="metadata-label">@Messages("dataCite.contributors")</div>
-        <div class="metadata-value">
-          @metadata.contributors.toSeq.flatten.map { obj =>
-            <ul class="contributors-list">
-              <li class="contributor-item">
-                <span property="author" typeof="Person">
-                  <span property="name">@obj.name</span>
-                </span>
-                <span class="contributor-role">@obj.contributorType</span>
-                @obj.nameIdentifiers.toSeq.flatten.map { ident =>
-                  @if(ident.nameIdentifierScheme == "ORCID") {
-                    <span class="contributor-orcid">
-                      <a href="@ident.nameIdentifier" target="_blank">
-                        <img src="@routes.Assets.versioned("images/orcid-auth.svg")" alt="ORCID logo">
-                      </a>
-                    </span>
+      @if(metadata.contributors.exists(_.nonEmpty)) {
+        <div class="metadata-item">
+          <div class="metadata-label">@Messages("dataCite.contributors")</div>
+          <div class="metadata-value">
+            @metadata.contributors.toSeq.flatten.map { obj =>
+              <ul class="contributors-list">
+                <li class="contributor-item">
+                  <span property="author" typeof="Person">
+                    <span property="name">@obj.name</span>
+                  </span>
+                  <span class="contributor-role">@obj.contributorType</span>
+                  @obj.nameIdentifiers.toSeq.flatten.map { ident =>
+                    @if(ident.nameIdentifierScheme == "ORCID") {
+                      <span class="contributor-orcid">
+                        <a href="@ident.nameIdentifier" target="_blank">
+                          <img src="@routes.Assets.versioned("images/orcid-auth.svg")" alt="ORCID logo">
+                        </a>
+                      </span>
+                    }
                   }
-                }
-              </li>
-            </ul>
-          }
-        </div>
-      </div>
-    }
-
-    @if(metadata.subjects.exists(_.nonEmpty)) {
-      <div class="metadata-item">
-        <div class="metadata-label">@Messages("dataCite.subjects")</div>
-        <div class="metadata-value">
-          <ul>
-            @metadata.subjects.toSeq.flatten.map { obj =>
-              <li><span property="subject">@obj.subject</span></li>
+                </li>
+              </ul>
             }
-          </ul>
+          </div>
         </div>
-      </div>
-    }
+      }
 
-    @if(metadata.relatedIdentifiers.exists(_.nonEmpty)) {
-      <div class="metadata-item">
-        <div class="metadata-label">@Messages("dataCite.relatedIdentifiers")</div>
-        <div class="metadata-value">
-          @RelationType.values.toSeq.map { relationType =>
-            @relatedIdentifierSection(metadata.relatedIdentifiers.toSeq.flatten, relationType)
-          }
+      @if(metadata.subjects.exists(_.nonEmpty)) {
+        <div class="metadata-item">
+          <div class="metadata-label">@Messages("dataCite.subjects")</div>
+          <div class="metadata-value">
+            <ul>
+              @metadata.subjects.toSeq.flatten.map { obj =>
+                <li><span property="subject">@obj.subject</span></li>
+              }
+            </ul>
+          </div>
         </div>
-      </div>
-    }
-    }
+      }
 
+      @if(metadata.relatedIdentifiers.exists(_.nonEmpty)) {
+        <div class="metadata-item">
+          <div class="metadata-label">@Messages("dataCite.relatedIdentifiers")</div>
+          <div class="metadata-value">
+            @RelationType.values.toSeq.map { relationType =>
+              @relatedIdentifierSection(metadata.relatedIdentifiers.toSeq.flatten, relationType)
+            }
+          </div>
+        </div>
+      }
+    }
   </article>
 
   <aside id="sidebar">
@@ -392,4 +391,5 @@
       </section>
     }
   </aside>
+  </section>
 }

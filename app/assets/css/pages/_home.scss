@@ -9,6 +9,31 @@
 
   // Standard padding is page margins
   padding: var(--margin-page-v) var(--margin-page-h);
+
+  p {
+    > a {
+      // Links inside paragraphs are styled differently to the default,
+      // and have an animated underline on hover
+      color: var(--theme-fg-muted);
+      font-weight: bold;
+      text-decoration: underline;
+      text-decoration-color: var(--theme-bg-accent);
+      text-decoration-thickness: 0.25rem;
+      background-image: linear-gradient(to bottom, transparent calc(100%), var(--theme-bg-accent) calc(100%));
+      background-position: bottom;
+      background-repeat: no-repeat;
+      background-size: 100% 0;
+      transition-duration: 0.2s;
+      transition-property: background-color background-size color;
+
+      &:hover {
+        color: var(--theme-fg-accent);
+        background-image: linear-gradient(to bottom, var(--theme-bg-accent) calc(100% - .5rem), var(--theme-bg-accent) calc(100% - .5rem));
+        background-size: 100% 100%;
+      }
+    }
+  }
+
 }
 
 .header.main {

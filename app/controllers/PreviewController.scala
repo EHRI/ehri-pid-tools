@@ -1,6 +1,7 @@
 package controllers
 
 import org.jsoup.Jsoup
+import org.jsoup.safety.Safelist
 import play.api.cache.AsyncCacheApi
 import play.api.i18n.I18nSupport
 import play.api.libs.ws.WSClient
@@ -25,8 +26,8 @@ class PreviewController @Inject()(
     val snippet: Future[Html] = ws.url(url).get().map { response =>
       val soup = Jsoup.parse(response.body)
       // Extract: og:title, og:description, og:image
-      val title = soup.select("meta[property=og:title]").attr("content")
-      val description = soup.select("meta[property=og:description]").attr("content")
+      val title = Jsoup.clean(soup.select("meta[property=og:title]").attr("content"), Safelist.basic())
+      val description = Jsoup.clean(soup.select("meta[property=og:description]").attr("content"), Safelist.basic())
       val image = soup.select("meta[property=og:image]").attr("content")
       views.html.preview(url, title, description, image)
     }

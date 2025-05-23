@@ -1,32 +1,39 @@
 @(doiMetadataList: DoiMetadataList)(implicit request: RequestHeader, messages: Messages)
 
 @views.html.layout.base("DOI List") {
-  <ul class="doi-list">
-  @for(doiMetadata <- doiMetadataList.dois) {
-    <li id="doi-@doiMetadata.id">
-    @defining(doiMetadata.asDataCiteMetadata) { dcm =>
-      <div class="doi-list-item">
-        <header>
-          <h3 class="doi-metadata">
-            <a href="@routes.DoiController.get(doiMetadata.prefix, doiMetadata.suffix)">
-            @dcm.title
-            </a>
-            <span class="doi-state-container doi-state-@doiMetadata.state">
-              <span class="doi-state-icon"></span>
-              <span class="doi-state-text">
-                @doiMetadata.state
-              </span>
-            </span>
-          </h3>
-        </header>
-      </div>
-    }
-    </li>
-  }
-  </ul>
-  @if(doiMetadataList.totalPages > 1) {
-    <div class="pagination">
-      @Messages("pagination.totalPages", doiMetadataList.totalPages)
-    </div>
-  }
+  <div class="page-content">
+    <article class="search-list">
+      <ul class="doi-list">
+      @for(doiMetadata <- doiMetadataList.dois) {
+        <li id="doi-@doiMetadata.id">
+        @defining(doiMetadata.asDataCiteMetadata) { dcm =>
+          <div class="doi-list-item">
+            <header>
+              <h3 class="doi-metadata">
+                <a href="@routes.DoiController.get(doiMetadata.prefix, doiMetadata.suffix)">
+                @dcm.title
+                </a>
+                <span class="doi-state-container doi-state-@doiMetadata.state">
+                  <span class="doi-state-icon"></span>
+                  <span class="doi-state-text">
+                  @doiMetadata.state
+                  </span>
+                </span>
+              </h3>
+            </header>
+          </div>
+        }
+        </li>
+      }
+      </ul>
+      @if(doiMetadataList.totalPages > 1) {
+        <div class="pagination">
+        @Messages("pagination.totalPages", doiMetadataList.totalPages)
+        </div>
+      }
+    </article>
+    <aside id="sidebar">
+
+    </aside>
+  </div>
 }

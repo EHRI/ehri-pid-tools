@@ -1,8 +1,11 @@
 @()(implicit req: RequestHeader, messages: Messages)
 
 @layout.base("Welcome") {
-  <h1>EHRI PID Service</h1>
-  <p>
-    Welcome to the EHRI PID service. This service provides persistent identifiers (PIDs) for digital objects.
-  </p>
+  <section class="page-content">
+    <h1>EHRI PID Service</h1>
+    <p>
+      Welcome to the EHRI PID service. This service provides persistent identifiers (PIDs) for digital objects. There isn't much
+      here at the moment except a <a href="@routes.DoiController.index()">list</a> of some test DOIs.
+    </p>
+  </section>
 }
