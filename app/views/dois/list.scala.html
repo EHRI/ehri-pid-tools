@@ -1,15 +1,14 @@
-@(doiMetadataList: DoiMetadataList)(implicit request: RequestHeader, messages: Messages)
+@(doiMetadataList: DoiMetadataList, prod: Boolean = false)(implicit request: RequestHeader, messages: Messages, config: AppConfig)
 
 @views.html.layout.base("DOI List") {
   <div class="page-content">
     <article class="search-list">
       <ul class="doi-list">
       @for(doiMetadata <- doiMetadataList.dois) {
-        <li id="doi-@doiMetadata.id">
         @defining(doiMetadata.asDataCiteMetadata) { dcm =>
-          <div class="doi-list-item">
+          <li class="doi-list-item" id="doi-@doiMetadata.id">
             <header>
-              <h3 class="doi-metadata">
+              <h3 class="doi-heading">
                 <a href="@routes.DoiController.get(doiMetadata.prefix, doiMetadata.suffix)">
                 @dcm.title
                 </a>
@@ -21,9 +20,22 @@
                 </span>
               </h3>
             </header>
+            <div class="doi-list-item-body">
+              <div class="metadata-item">
+                <div class="metadata-label sr-only">
+                  @Messages("dataCite.creators")
+              </div>
+              @views.html.dois.common.creatorList(dcm.creators)
+            </div>
+              <div class="doi-list-item-body-details">
+                @doiMetadata.id.map(id => config.doiUrl(id, prod)).map { doiUrl =>
+                  <span property="identifier">
+                    <a href="@doiUrl">@doiUrl</a>
+                  </span>
+                }
+              </div>
           </div>
         }
-        </li>
       }
       </ul>
       @if(doiMetadataList.totalPages > 1) {

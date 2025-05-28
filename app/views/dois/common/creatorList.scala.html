@@ -1,0 +1,24 @@
+@(creators: Seq[Creator])(implicit messages: Messages, request: RequestHeader)
+
+@if(creators.nonEmpty) {
+  <ul class="metadata-value metadata-value-list">
+  @for(obj <- creators) {
+    <li class="contributor-item">
+    @if(obj.nameType.contains(NameType.Organizational)) {
+      <span property="creator" typeof="Organization">
+        <span property="name">@obj.name</span>
+      </span>
+    } else {
+      <span property="creator" typeof="Person">@obj.familyName, @obj.givenName</span>
+      @obj.nameIdentifiers.toSeq.flatten.map { ident =>
+        @if(ident.nameIdentifierScheme == "ORCID") {
+          <a class="contributor-orcid" href="@ident.nameIdentifier" target="_blank">
+            <img src="@routes.Assets.versioned("images/orcid-auth.svg")" alt="ORCID logo">
+          </a>
+        }
+      }
+    }
+    </li>
+  }
+  </ul>
+}

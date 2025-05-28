@@ -125,26 +125,7 @@
     @if(metadata.creators.nonEmpty) {
       <div class="metadata-item">
         <div class="metadata-label">@Messages("dataCite.creators")</div>
-        <ul class="metadata-value metadata-value-list">
-          @metadata.creators.map { obj =>
-            <li class="contributor-item">
-              @if(obj.nameType.contains(NameType.Organizational)) {
-                <span property="creator" typeof="Organization">
-                  <span property="name">@obj.name</span>
-                </span>
-              } else {
-                <span property="creator" typeof="Person">@obj.familyName, @obj.givenName</span>
-                @obj.nameIdentifiers.toSeq.flatten.map { ident =>
-                  @if(ident.nameIdentifierScheme == "ORCID") {
-                    <a class="contributor-orcid" href="@ident.nameIdentifier" target="_blank">
-                      <img src="@routes.Assets.versioned("images/orcid-auth.svg")" alt="ORCID logo">
-                    </a>
-                  }
-                }
-              }
-            </li>
-          }
-        </ul>
+        @views.html.dois.common.creatorList(metadata.creators)
       </div>
     }
 

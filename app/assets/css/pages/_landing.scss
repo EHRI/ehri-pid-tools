@@ -73,7 +73,7 @@
 
 .metadata-value-list > li {
   &:after {
-    content: ',\00a0';
+    content: ';\00a0';
   }
 }
 
@@ -140,6 +140,32 @@
 
 .doi-state-findable .doi-state-icon {
   background-color: #009966;
+}
+
+.doi-heading {
+  display: flex;
+  align-items: center;
+  gap: $space-md;
+
+  margin: 0 0 $space-sm 0;
+}
+
+.doi-list {
+  margin: 0;
+  padding: 0;
+}
+
+.doi-list-item {
+  list-style-type: none;
+  margin: 0;
+
+  border-bottom: 1px dashed var(--theme-bg-accent);
+  padding-bottom: $space-sm;
+  margin-bottom: $space-md;
+
+  .metadata-item {
+    margin-bottom: 0;
+  }
 }
 
 /**

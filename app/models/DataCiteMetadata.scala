@@ -132,6 +132,19 @@ case class Creator(
 )
 
 /**
+ * Represents a contributor
+ */
+case class Contributor(
+  name: String,
+  nameType: Option[NameType.Value] = None,
+  givenName: Option[String] = None,
+  familyName: Option[String] = None,
+  nameIdentifiers: Option[List[NameIdentifier]] = None,
+  affiliations: Option[List[Affiliation]] = None,
+  contributorType: Option[ContributorType.Value] = None
+)
+
+/**
  * Represents a title
  */
 case class Title(
@@ -186,19 +199,6 @@ case class Subject(
   valueURI: Option[String] = None,
   classificationCode: Option[String] = None,
   lang: Option[String] = None
-)
-
-/**
- * Represents a contributor
- */
-case class Contributor(
-  name: String,
-  nameType: Option[NameType.Value] = None,
-  givenName: Option[String] = None,
-  familyName: Option[String] = None,
-  nameIdentifiers: Option[List[NameIdentifier]] = None,
-  affiliations: Option[List[Affiliation]] = None,
-  contributorType: Option[ContributorType.Value] = None
 )
 
 /**

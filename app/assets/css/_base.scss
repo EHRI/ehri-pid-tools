@@ -196,7 +196,8 @@ h6 {
 
 // Default links
 a {
-  color: var(--theme-fg-accent);
+  //color: var(--theme-fg-accent);
+  color: lighten($dark-blue, 20%);
   text-decoration: none;
 }
 
