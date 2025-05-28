@@ -104,37 +104,42 @@ class DoiController @Inject()(
     }
   }
 
-  def register(): Action[Doi] = AuthAction.async(apiJson[Doi]) { implicit request =>
-    val metadata = request.body.metadata
-    val target = request.body.target
+  def register(): Action[JsValue] = AuthAction.async(apiJson[JsValue]) { implicit request =>
+    request.body.validate[Doi] match {
+      case JsSuccess(Doi(metadata, target, _), _) =>
+        val newSuffix = doiService.generateSuffix()
+        val prefix = appConfig.doiPrefix
+        val doi = s"$prefix/$newSuffix"
+        val serviceUrl = routes.DoiController.get(prefix, newSuffix).absoluteURL()
+        val newMetadata = metadata.withDoi(doi).withUrl(serviceUrl)
 
+        logger.debug(s"Registering new DOI with '$doi' and URL: $serviceUrl")
 
-    val newSuffix = doiService.generateSuffix()
-    val prefix = appConfig.doiPrefix
-    val doi = s"$prefix/$newSuffix"
-    val serviceUrl = routes.DoiController.get(prefix, newSuffix).absoluteURL()
-    val newMetadata = metadata.withDoi(doi).withUrl(serviceUrl)
-
-    logger.debug(s"Registering new DOI with '$doi' and URL: $serviceUrl")
-
-    for {
-      doiMetadata <- doiService.registerDoi(newMetadata)
-      pid <- pidService.create(PidType.DOI, doi, target, request.clientId)
-    } yield Created(Doi(doiMetadata, target, pid.tombstone))
+        for {
+          doiMetadata <- doiService.registerDoi(newMetadata)
+          pid <- pidService.create(PidType.DOI, doi, target, request.clientId)
+        } yield Created(Doi(doiMetadata, target, pid.tombstone))
+      case JsError(errors) =>
+        logger.error(s"Invalid request body: $errors")
+        immediate(jsonApiError(BadRequest, "errors.invalidRequest"))
+    }
   }
 
-  def update(prefix: String, suffix: String): Action[Doi] = AuthAction.async(apiJson[Doi]) { implicit request =>
-    val metadata = request.body.metadata
-    val target = request.body.target
+  def update(prefix: String, suffix: String): Action[JsValue] = AuthAction.async(apiJson[JsValue]) { implicit request =>
+    request.body.validate[Doi] match {
+      case JsSuccess(Doi(metadata, target, _), _) =>
+        val doi = s"$prefix/$suffix"
+        logger.debug(s"Updating DOI '$doi' (${metadata.state}) with target: $target")
+        logger.trace(s"  Metadata: $metadata")
 
-    val doi = s"$prefix/$suffix"
-    logger.debug(s"Updating DOI '$doi' (${metadata.state}) with target: $target")
-    logger.trace(s"  Metadata: $metadata")
-
-    for {
-      dm <- doiService.updateDoi(doi, metadata)
-      pid <- pidService.update(PidType.DOI, doi, target)
-    } yield Ok(Doi(dm, target, pid.tombstone))
+        for {
+          dm <- doiService.updateDoi(doi, metadata)
+          pid <- pidService.update(PidType.DOI, doi, target)
+        } yield Ok(Doi(dm, target, pid.tombstone))
+      case JsError(errors) =>
+        logger.error(s"Invalid request body: $errors")
+        immediate(jsonApiError(BadRequest, "errors.invalidRequest"))
+    }
   }
 
   def delete(prefix: String, suffix: String): Action[AnyContent] = AuthAction.async { implicit request =>

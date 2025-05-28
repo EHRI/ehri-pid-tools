@@ -136,13 +136,29 @@ class DoiControllerSpec extends AppSpec with DatabaseSupport {
       val result = call(controller.register(), request)
 
       status(result) mustBe BAD_REQUEST
-      contentType(result) mustBe Some("application/json")
+      contentType(result) mustBe Some("application/vnd.api+json")
       val out = contentAsJson(result)
       (out \ "errors" \ 0 \ "title").asOpt[String] must be(defined)
     }
 
     "fail to register a DOI with invalid authorization" in {
       val payload = resourceAsJson("example.json").as[JsObject] ++ Json.obj(
+        "meta" -> Json.obj(
+          "target" -> "https://example.com/resource"
+        )
+      )
+      val request = FakeRequest(POST, routes.DoiController.register().url)
+        .withHeaders("Accept" -> "application/vnd.api+json", "Authorization" -> "Basic invalid")
+        .withJsonBody(payload)
+      val result = call(controller.register(), request)
+
+      status(result) mustBe UNAUTHORIZED
+      contentType(result) mustBe Some("application/vnd.api+json")
+      contentAsString(result) must include ("The token is missing, invalid or expired")
+    }
+
+    "fail with invalid authorization before invalid payload" in {
+      val payload = Json.obj(
         "meta" -> Json.obj(
           "target" -> "https://example.com/resource"
         )
