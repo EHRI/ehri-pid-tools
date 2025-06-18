@@ -1,6 +1,7 @@
 import helpers.{resourceAsJson, resourceAsString}
 import mockws.MockWS
 import mockws.MockWSHelpers.Action
+import models.JsonApiError
 import play.api.libs.json.Json
 import play.api.mvc.Results
 import play.api.test.Helpers.{DELETE, GET, HEAD, POST, PUT}
@@ -21,8 +22,12 @@ package object mocks {
         Results.Ok(resourceAsJson("example-list.json"))
       }
       case (GET, regex(doi)) if doi == "NOT/FOUND" => Action {
-        Results.NotFound(Json.parse(
-          """{"errors":[{"status":"404","title":"The resource you are looking for doesn't exist."}]}"""))
+        Results.NotFound(
+          JsonApiError(
+            "The resource you are looking for doesn't exist.",
+            status = Some("404")
+          )
+        )
       }
       case (GET, regex(_)) => Action {
         Results.Ok(resourceAsJson("example.json"))

@@ -21,8 +21,9 @@ trait DoiService {
 
   def deleteDoi(doi: String): Future[Boolean]
 
-  def generateSuffix(): String =
+  def generateSuffix(): String = {
     generateRandomString(DOI_ALPHABET) + "-" + generateRandomString(DOI_ALPHABET)
+  }
 
   private def generateRandomString(alphabet: String, length: Int = 4): String =
     (1 to length).map(_ => alphabet.charAt(scala.util.Random.nextInt(alphabet.length))).mkString

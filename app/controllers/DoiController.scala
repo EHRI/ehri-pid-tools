@@ -1,12 +1,12 @@
 package controllers
 
 import auth.AuthAction
-import models.{Doi, DoiMetadata, DoiState, JsonApiData, Pid, PidType, TombstoneReason}
+import models.{Doi, DoiMetadata, DoiState, JsonApiData, JsonApiError, Pid, PidType, TombstoneReason}
 import play.api.i18n.{I18nSupport, Messages}
 import play.api.libs.json.JsError.toJson
 import play.api.libs.json.{JsError, JsSuccess, JsValue, Json, Reads}
 import play.api.mvc._
-import services.{DoiNotFound, DoiService, PidService}
+import services.{DoiExistsException, DoiNotFound, DoiService, PidExistsException, PidService}
 
 import javax.inject._
 import scala.concurrent.ExecutionContext
@@ -26,15 +26,8 @@ class DoiController @Inject()(
   private val logger = play.api.Logger(getClass)
 
   private def jsonApiError(status: Status, message: String, args: String*)(implicit request: RequestHeader): Result = {
-    val errorResponse = Json.obj(
-      "errors" -> Json.arr(
-        Json.obj(
-          "status" -> status.header.status,
-          "title" -> Messages(message, args: _*)
-        )
-      )
-    )
-    status(errorResponse).as("application/vnd.api+json")
+    val errorObj = JsonApiError(Messages(message, args: _*), status = Some(status.header.status.toString))
+    status(errorObj).as("application/vnd.api+json")
   }
 
   // To override the max request size we unfortunately need to define our own body parser here:
@@ -47,14 +40,11 @@ class DoiController @Inject()(
           Right(a)
         } recoverTotal { jsError =>
           Left(BadRequest(
-            Json.obj("errors" -> Json.arr(
-              Json.obj(
-                "status" -> BadRequest.header.status,
-                "title" -> "Unexpected JSON payload", // TODO: i18n?
-                "details" -> toJson(jsError),
-              )
-            ))
-          ))
+            JsonApiError(
+              "Unexpected JSON payload", // TODO: i18n?
+              status = Some(BadRequest.header.status.toString),
+              detail = Some(toJson(jsError)),
+            )))
         }
     }
   }
@@ -109,16 +99,30 @@ class DoiController @Inject()(
       case JsSuccess(Doi(metadata, target, _), _) =>
         val newSuffix = doiService.generateSuffix()
         val prefix = appConfig.doiPrefix
-        val doi = s"$prefix/$newSuffix"
+        val newDoi = s"$prefix/$newSuffix"
         val serviceUrl = routes.DoiController.get(prefix, newSuffix).absoluteURL()
-        val newMetadata = metadata.withDoi(doi).withUrl(serviceUrl)
+        val newMetadata = metadata.withDoi(newDoi).withUrl(serviceUrl)
 
-        logger.debug(s"Registering new DOI with '$doi' and URL: $serviceUrl")
+        logger.debug(s"Registering new DOI with '$newDoi' and URL: $serviceUrl")
 
-        for {
+        (for {
           doiMetadata <- doiService.registerDoi(newMetadata)
-          pid <- pidService.create(PidType.DOI, doi, target, request.clientId)
-        } yield Created(Doi(doiMetadata, target, pid.tombstone))
+          pid <- pidService.create(PidType.DOI, newDoi, target, request.clientId)
+        } yield Created(Doi(doiMetadata, target, pid.tombstone)))
+          .recoverWith {
+            case e: DoiExistsException =>
+              logger.error(s"Failed to register DOI: ${e.getMessage}")
+              immediate(jsonApiError(Conflict, "errors.doi.collisionError"))
+            case _: PidExistsException =>
+              // Clean up the draft DOI if it already exists
+              doiService.deleteDoi(newDoi).map { _ =>
+                logger.error(s"DOI '$newDoi' already exists, returning error.")
+                jsonApiError(Conflict, "errors.doi.collisionError")
+              }
+            case e =>
+              logger.error(s"Failed to register DOI: ${e.getMessage}")
+              immediate(jsonApiError(InternalServerError, "errors.doi.registrationFailed"))
+          }
       case JsError(errors) =>
         logger.error(s"Invalid request body: $errors")
         immediate(jsonApiError(BadRequest, "errors.invalidRequest"))

@@ -36,10 +36,10 @@ class SqlPidServiceSpec extends AppSpec with DatabaseSupport {
     }
 
     "error on creating existing items" in {
-      val exception = intercept[Exception] {
+      val exception = intercept[PidExistsException] {
         await(pidService.create(PidType.DOI, "10.14454/fxws-0523", "https://foo.bar/baz", "system"))
       }
-      exception.getMessage must include("duplicate key value violates unique constraint")
+      exception.getMessage must include("already exists")
     }
 
     "update existing items" in {

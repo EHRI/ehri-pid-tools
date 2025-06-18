@@ -4,7 +4,7 @@ import mockws.MockWSHelpers
 import org.scalatest.TestData
 import org.scalatestplus.play.PlaySpec
 import org.scalatestplus.play.guice.GuiceOneAppPerTest
-import play.api.inject.guice.GuiceApplicationBuilder
+import play.api.inject.guice.{GuiceApplicationBuilder, GuiceableModule}
 import play.api.libs.ws.WSClient
 import play.api.{Application, Configuration, Environment}
 import play.api.test.{DefaultAwaitTimeout, FutureAwaits, Injecting}
@@ -19,12 +19,14 @@ abstract class AppSpec extends PlaySpec with GuiceOneAppPerTest with DefaultAwai
   private val config = Configuration.load(Environment.simple())
   private val apiBaseUrl = config.get[String]("doi.api.baseUrl")
 
-  implicit override def newAppForTest(testData: TestData): Application = {
+  protected def newAppBuilder(overrides: GuiceableModule*): GuiceApplicationBuilder = {
     import play.api.inject.bind
     new GuiceApplicationBuilder()
-      .overrides(
-        bind[WSClient].toInstance(mocks.mockWS(apiBaseUrl)),
-      )
-      .build()
+      .overrides(overrides: _*)
+      .overrides(bind[WSClient].toInstance(mocks.mockWS(apiBaseUrl)))
+  }
+
+  implicit override def newAppForTest(testData: TestData): Application = {
+      newAppBuilder().build()
   }
 }

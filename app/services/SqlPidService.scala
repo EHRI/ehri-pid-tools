@@ -2,6 +2,7 @@ package services
 
 import anorm.{Macro, RowParser, SqlStringInterpolation}
 import models.{Pid, PidType, Tombstone}
+import org.postgresql.util.PSQLException
 import play.api.Configuration
 import play.api.db.Database
 
@@ -32,9 +33,14 @@ case class SqlPidService @Inject()(db: Database, config: Configuration)(implicit
 
   override def create(ptype: PidType.Value, value: String, target: String, client: String): Future[Pid] = Future {
     db.withConnection { implicit conn =>
-      SQL"""INSERT INTO pids (ptype, value, target, client) VALUES ($ptype::pid_type, $value, $target, $client)
+      try {
+        SQL"""INSERT INTO pids (ptype, value, target, client) VALUES ($ptype::pid_type, $value, $target, $client)
             RETURNING ptype, value, target"""
-        .as(pidParser.single)
+          .as(pidParser.single)
+      } catch {
+        case e: PSQLException if e.getSQLState == "23505" =>
+          throw PidExistsException(s"PID with type $ptype and value $value already exists.")
+      }
     }
   }(ec)
 

@@ -10,6 +10,8 @@ errors.doi.notFound=The DOI you provided does not exist, is unpublished, or is n
 errors.doi.exception=Unexpected response: {0}
 errors.doi.tombstoneFailed=Error creating tombstone for DOI {0}.
 errors.doi.tombstoneNotFound=The DOI provided either does not exist, or is not tombstoned.
+errors.doi.collisionError=A DOI collision has occurred. The DOI {0} is already registered to another item. \
+  This error is usually transient and can be resolved by retrying the request.
 
 notice=NB
 pagination.totalPages=Total Pages: {0,number,integer}

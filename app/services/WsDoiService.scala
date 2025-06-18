@@ -1,6 +1,6 @@
 package services
 
-import models.{DoiMetadata, DoiMetadataList, JsonApiData}
+import models.{DoiMetadata, DoiMetadataList, JsonApiData, JsonApiError}
 import org.apache.pekko.util.ByteString
 import play.api.Configuration
 import play.api.http.Status
@@ -90,10 +90,16 @@ case class WsDoiService @Inject()(ws: WSClient, config: Configuration)(implicit 
         case JsError(errors) =>
           throw new RuntimeException(s"Failed to parse response: ${response.status} ${response.statusText} - $errors")
       }
-    } else if (response.status == Status.NOT_FOUND) {
-      throw DoiNotFound("errors.doi.notFound", Some(response.json))
     } else {
-      throw DoiServiceException("errors.doi.exception", response.status, response.json)
+      val errorObj = response.json.asOpt[JsonApiError]
+     if (response.status == Status.NOT_FOUND) {
+        throw DoiNotFound("errors.doi.notFound", Some(response.json))
+      } else if (response.status == Status.UNPROCESSABLE_ENTITY
+          && errorObj.exists(_.firstMessage.contains("This DOI has already been taken"))) {
+        throw DoiExistsException("errors.doi.collisionError", Some(response.json))
+      } else {
+        throw DoiServiceException("errors.doi.exception", response.status, response.json)
+      }
     }
   }
 }

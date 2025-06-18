@@ -1,13 +1,20 @@
 package controllers
 
 import helpers.{AppSpec, DatabaseSupport, resourceAsJson}
-import models.JsonApiData
+import models.{DoiMetadata, JsonApiData}
+import org.mockito.ArgumentMatchers.any
+import org.mockito.Mockito.{times, verify, when}
+import org.scalatestplus.mockito.MockitoSugar
+import play.api
 import play.api.libs.json.{JsDefined, JsObject, JsString, Json}
 import play.api.test.Helpers._
 import play.api.test._
+import services.{DoiExistsException, DoiService, PidExistsException, PidService}
+
+import scala.concurrent.Future
 
 
-class DoiControllerSpec extends AppSpec with DatabaseSupport {
+class DoiControllerSpec extends AppSpec with DatabaseSupport with MockitoSugar {
 
   private def controller = inject[DoiController]
   private val (prefix, suffix) = ("10.14454", "fxws-0523")
@@ -47,7 +54,7 @@ class DoiControllerSpec extends AppSpec with DatabaseSupport {
 
     "fetch a DOI containing multiple path sections" in {
       val request = FakeRequest(GET, routes.DoiController.get(prefix, "1234/1234/1234/1234").url)
-      val result = controller.get(prefix, suffix).apply(request)
+      val result = controller.get(prefix, "1234/1234/1234/1234").apply(request)
 
       status(result) mustBe OK
       contentType(result) mustBe Some("text/html")
@@ -93,6 +100,77 @@ class DoiControllerSpec extends AppSpec with DatabaseSupport {
       out \ "meta" \ "target" mustBe JsDefined(JsString("https://example.com/resource"))
       out \ "data" \ "type" mustBe JsDefined(JsString("dois"))
       out \ "data" \ "attributes" \ "prefix" mustBe JsDefined(JsString("10.14454"))
+    }
+
+    "handle (hopefully rare) DOI service collisions gracefully" in {
+      // We have to create a new application here and override bind a
+      // mock DoiService that throws a DoiExistsException
+      val mockDoiService = mock[DoiService]
+      when(mockDoiService.registerDoi(any())).thenReturn(
+        Future.failed(DoiExistsException("DOI already exists"))
+      )
+
+      val mockedApp = newAppBuilder(Seq(
+        api.inject.bind[DoiService].toInstance(mockDoiService)
+      )).build()
+
+      val controller = mockedApp.injector.instanceOf[DoiController]
+      val payload = resourceAsJson("example.json").as[JsObject] ++ Json.obj(
+        "meta" -> Json.obj(
+          "target" -> "https://example.com/resource"
+        )
+      )
+      val request = FakeRequest(POST, routes.DoiController.register().url)
+        .withHeaders("Accept" -> "application/vnd.api+json", "Authorization" -> basicAuthString)
+        .withJsonBody(payload)
+      val result = call(controller.register(), request)
+
+      status(result) mustBe CONFLICT
+      contentType(result) mustBe Some("application/vnd.api+json")
+      contentAsString(result) must include ("A DOI collision has occurred")
+    }
+
+    "handle (hopefully rare) PID service collisions gracefully" in {
+      // When the PID service throws a PidExistsException, we should
+      // return a 409 Conflict with a specific error message.
+      val payload = resourceAsJson("example.json").as[JsObject] ++ Json.obj(
+        "meta" -> Json.obj(
+          "target" -> "https://example.com/resource"
+        )
+      )
+
+      // Here we mock the DoiService to return a consistent DOI suffix.
+      val mockDoiService = mock[DoiService]
+      when(mockDoiService.generateSuffix()).thenReturn("abcd-efgh")
+      when(mockDoiService.deleteDoi(any())).thenReturn(Future.successful(true))
+      when(mockDoiService.registerDoi(any())).thenReturn(
+        Future.successful(payload.as[models.JsonApiData].data.as[DoiMetadata])
+      )
+      // And the PID service to throw an error...
+      val mockPidService = mock[PidService]
+      when(mockPidService.create(any(), any(), any(), any())).thenReturn(
+        Future.failed(PidExistsException("DOI already exists"))
+      )
+
+      // We have to create a new application here and override bind a
+      // mock DoiService that throws a DoiExistsException
+      val mockedApp = newAppBuilder(Seq(
+        api.inject.bind[DoiService].toInstance(mockDoiService),
+        api.inject.bind[PidService].toInstance(mockPidService)
+      )).build()
+
+      val controller = mockedApp.injector.instanceOf[DoiController]
+      val request = FakeRequest(POST, routes.DoiController.register().url)
+        .withHeaders("Accept" -> "application/vnd.api+json", "Authorization" -> basicAuthString)
+        .withJsonBody(payload)
+      val result = call(controller.register(), request)
+
+      status(result) mustBe CONFLICT
+      contentType(result) mustBe Some("application/vnd.api+json")
+      contentAsString(result) must include ("A DOI collision has occurred")
+
+      // Check the DoiService was called to delete the draft DOI...
+      verify(mockDoiService, times(1)).deleteDoi(s"10.12345/abcd-efgh")
     }
 
     "update a DOI" in {
