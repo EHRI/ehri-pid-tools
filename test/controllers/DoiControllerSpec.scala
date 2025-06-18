@@ -125,9 +125,9 @@ class DoiControllerSpec extends AppSpec with DatabaseSupport with MockitoSugar {
         .withJsonBody(payload)
       val result = call(controller.register(), request)
 
-      status(result) mustBe CONFLICT
+      status(result) mustBe UNPROCESSABLE_ENTITY
       contentType(result) mustBe Some("application/vnd.api+json")
-      contentAsString(result) must include ("A DOI collision has occurred")
+      contentAsString(result) must include ("This DOI has already been taken")
     }
 
     "handle (hopefully rare) PID service collisions gracefully" in {
@@ -165,9 +165,9 @@ class DoiControllerSpec extends AppSpec with DatabaseSupport with MockitoSugar {
         .withJsonBody(payload)
       val result = call(controller.register(), request)
 
-      status(result) mustBe CONFLICT
+      status(result) mustBe UNPROCESSABLE_ENTITY
       contentType(result) mustBe Some("application/vnd.api+json")
-      contentAsString(result) must include ("A DOI collision has occurred")
+      contentAsString(result) must include ("This DOI has already been taken")
 
       // Check the DoiService was called to delete the draft DOI...
       verify(mockDoiService, times(1)).deleteDoi(s"10.12345/abcd-efgh")

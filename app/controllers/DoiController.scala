@@ -112,12 +112,12 @@ class DoiController @Inject()(
           .recoverWith {
             case e: DoiExistsException =>
               logger.error(s"Failed to register DOI: ${e.getMessage}")
-              immediate(jsonApiError(Conflict, "errors.doi.collisionError"))
+              immediate(jsonApiError(UnprocessableEntity, "errors.doi.collisionError"))
             case _: PidExistsException =>
               // Clean up the draft DOI if it already exists
               doiService.deleteDoi(newDoi).map { _ =>
                 logger.error(s"DOI '$newDoi' already exists, returning error.")
-                jsonApiError(Conflict, "errors.doi.collisionError")
+                jsonApiError(UnprocessableEntity, "errors.doi.collisionError")
               }
             case e =>
               logger.error(s"Failed to register DOI: ${e.getMessage}")

@@ -65,6 +65,10 @@ case class WsDoiService @Inject()(ws: WSClient, config: Configuration)(implicit 
     }
   }
 
+  override def generateSuffix(): String = {
+    generateRandomString(DOI_ALPHABET) + "-" + generateRandomString(DOI_ALPHABET)
+  }
+
   private def allHeaders: Map[String, String] = headers ++ authHeaders
 
   private def headers: Map[String, String] = Map(
