@@ -23,7 +23,7 @@ abstract class AppSpec extends PlaySpec with GuiceOneAppPerTest with DefaultAwai
     import play.api.inject.bind
     new GuiceApplicationBuilder()
       .overrides(
-        bind[WSClient].toInstance(mocks.doiServiceMockWS(apiBaseUrl)),
+        bind[WSClient].toInstance(mocks.mockWS(apiBaseUrl)),
       )
       .build()
   }

@@ -1,12 +1,12 @@
-@(url: String, title: String, desc: String, image: String)(implicit messages: Messages)
+@(url: String, title: String, desc: String, image: Option[String])(implicit messages: Messages)
 
 <div class="target-card">
   <div class="target-img">
     <a href="@url" aria-label="@Messages("target.link.accessibility")">
-    @if(image.nonEmpty) {
-      <img src="@image" alt="Image for item">
-    } else {
-      <img src="@routes.Assets.versioned("images/target-image-placeholder.svg")" alt="Image for item">
+      @image.map { src =>
+        <img src="@src" alt="Image for item">
+      }.getOrElse {
+        <img src="@routes.Assets.versioned("images/target-image-placeholder.svg")" alt="Image for item">
       }
     </a>
   </div>
