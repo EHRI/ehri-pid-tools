@@ -27,6 +27,9 @@ CREATE TABLE tombstones (
 -- Composite index for lookups by type and value
 CREATE INDEX pids_type_value_idx ON pids (ptype, value);
 
+-- Index for quick lookups by target URL
+CREATE INDEX pids_target_idx ON pids (target);
+
 -- Automatically update timestamps
 CREATE OR REPLACE FUNCTION update_modified_column()
 RETURNS TRIGGER AS $$
@@ -46,5 +49,7 @@ CREATE TRIGGER update_pids_modtime
 DROP TRIGGER update_pids_modtime ON pids;
 DROP FUNCTION update_modified_column();
 DROP TABLE tombstones;
+DROP INDEX pids_target_idx;
+DROP INDEX pids_type_value_idx;
 DROP TABLE pids;
 DROP TYPE pid_type;

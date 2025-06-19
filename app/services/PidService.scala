@@ -11,6 +11,8 @@ trait PidService {
 
   def findById(ptype: PidType.Value, value: String): Future[Option[Pid]]
 
+  def findByTarget(ptype: PidType.Value, target: String): Future[Option[Pid]]
+
   def create(ptype: PidType.Value, value: String, target: String, client: String): Future[Pid]
 
   def update(ptype: PidType.Value, value: String, target: String): Future[Pid]

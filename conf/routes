@@ -18,6 +18,21 @@ POST          /dois/:prefix/*suffix/tombstone        controllers.DoiController.t
 +nocsrf
 DELETE        /dois/:prefix/*suffix/tombstone        controllers.DoiController.deleteTombstone(prefix: String, suffix: String)
 
+# ARK operations
+GET           /arks                                  controllers.ArkController.index()
+GET           /arks/$prefix<[0-9]+>/*suffix          controllers.ArkController.get(prefix: String, suffix: String)
+GET           /arks/*target                          controllers.ArkController.getByTarget(target: String)
++nocsrf
+POST          /arks                                  controllers.ArkController.register()
++nocsrf
+PUT           /arks/:prefix/*suffix                  controllers.ArkController.update(prefix: String, suffix: String)
++nocsrf
+DELETE        /arks/:prefix/*suffix                  controllers.ArkController.delete(prefix: String, suffix: String)
++nocsrf
+POST          /arks/:prefix/*suffix/tombstone        controllers.ArkController.tombstone(prefix: String, suffix: String)
++nocsrf
+DELETE        /arks/:prefix/*suffix/tombstone        controllers.ArkController.deleteTombstone(prefix: String, suffix: String)
+
 # Preview
 GET           /preview                               controllers.PreviewController.preview(url: String ?= "")
 

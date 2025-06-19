@@ -19,6 +19,13 @@ class SqlPidServiceSpec extends AppSpec with DatabaseSupport {
       pids.get.target mustBe "https://example.com/pid-test-1"
     }
 
+    "fetch pids by target" in {
+      val pids = await(pidService.findByTarget(PidType.DOI, "https://example.com/pid-test-1"))
+      pids mustBe defined
+      pids.get.value mustBe "10.14454/fxws-0523"
+      pids.get.target mustBe "https://example.com/pid-test-1"
+    }
+
     "fetch pids with tombstones" in {
       val pids = await(pidService.findById(PidType.DOI, "10.14454/fxws-0524"))
       pids mustBe defined
@@ -26,7 +33,7 @@ class SqlPidServiceSpec extends AppSpec with DatabaseSupport {
       pids.get.target mustBe "https://example.com/pid-test-2"
       pids.get.tombstone mustBe defined
       pids.get.tombstone.get.client mustBe "system"
-      pids.get.tombstone.get.reason mustBe "Test deletion"
+      pids.get.tombstone.get.reason mustBe "Test DOI deletion"
     }
 
     "create new items" in {

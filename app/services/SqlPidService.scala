@@ -31,6 +31,16 @@ case class SqlPidService @Inject()(db: Database, config: Configuration)(implicit
     }
   }(ec)
 
+  override def findByTarget(ptype: PidType.Value, target: String): Future[Option[Pid]] = Future {
+    db.withConnection { implicit conn =>
+      SQL"""SELECT p.ptype, p.value, p.target, t.client, t.reason, t.deleted_at
+           FROM pids p
+           LEFT JOIN tombstones t ON p.id = t.pid_id
+           WHERE p.ptype = $ptype::pid_type AND p.target = $target"""
+        .as(pidParser.singleOpt)
+    }
+  }(ec)
+
   override def create(ptype: PidType.Value, value: String, target: String, client: String): Future[Pid] = Future {
     db.withConnection { implicit conn =>
       try {
