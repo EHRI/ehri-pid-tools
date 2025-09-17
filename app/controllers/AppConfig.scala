@@ -6,9 +6,6 @@ import play.api.Configuration
 import javax.inject.Inject
 
 case class AppConfig @Inject()(config: Configuration) {
-
-  def showHidden: Boolean = config.get[Boolean]("doi.showHidden")
-
   /**
    * Resolve a DOI.
    *

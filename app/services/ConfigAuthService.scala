@@ -1,6 +1,6 @@
 package services
 
-import play.api.Configuration
+import play.api.{Configuration, Logger}
 
 import java.nio.charset.StandardCharsets
 import javax.inject.Inject
@@ -9,6 +9,7 @@ import scala.concurrent.Future.{successful => immediate}
 
 
 case class ConfigAuthService @Inject()(config: Configuration) extends AuthService {
+  private val logger = Logger(classOf[ConfigAuthService])
   private val decoder = java.util.Base64.getDecoder
 
   override def authenticate(token: String): Future[Option[String]] = {
@@ -25,8 +26,13 @@ case class ConfigAuthService @Inject()(config: Configuration) extends AuthServic
       val secret = clients.get(clientId)
 
       secret match {
-        case Some(`clientSecret`) => immediate(Some(clientId))
-        case _ => immediate(None)
+        case Some(s) if s == clientSecret => immediate(Some(clientId))
+        case Some(_) =>
+          logger.debug(s"Invalid client secret for client ID: '$clientId'")
+          immediate(None)
+        case _ =>
+          logger.debug(s"No client found matching ID '$clientId''")
+          immediate(None)
       }
     } else {
       immediate(None)

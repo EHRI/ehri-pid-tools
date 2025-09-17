@@ -86,13 +86,15 @@ class DoiController @Inject()(
   def get(prefix: String, suffix: String): Action[AnyContent] = Action.async { implicit request =>
     pidService.findById(PidType.DOI, s"$prefix/$suffix").flatMap {
       case Some(pid) => doiService.getDoiMetadata(pid.value).map { doiMetadata =>
-        if (doiMetadata.state != DoiState.Findable && !appConfig.showHidden) {
-          throw DoiNotFound(Messages("errors.doi.notFound"))
-        }
         val retStatus: Status = pid.tombstone.fold(Ok)(_ => Gone)
         render {
-          case Accepts.Html() =>
+          // If we're returning HTML and configured to show hidden items, do...
+          case Accepts.Html() if doiMetadata.state != DoiState.Findable && !doiProfile.showHidden =>
             retStatus(views.html.dois.show(pid, doiMetadata.asDataCiteMetadata))
+          // If we're returning HTML and NOT configured to show hidden item, throw a 404
+          case Accepts.Html() =>
+            throw DoiNotFound(Messages("errors.doi.notFound"))
+          // Otherwise, show metadata...
           case _ =>
             retStatus(Doi(doiMetadata, pid.target, pid.tombstone))
         }

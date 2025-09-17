@@ -11,7 +11,8 @@ case class DoiProfile(
   resolver: String,
   apiBaseUrl: String,
   repositoryId: String,
-  repositorySecret: String
+  repositorySecret: String,
+  showHidden: Boolean,
 )
 
 object DoiProfile {
@@ -23,7 +24,8 @@ object DoiProfile {
       doiConfig.get[String]("resolverUrl"),
       doiConfig.get[String]("api.baseUrl"),
       doiConfig.get[String]("api.repositoryId"),
-      doiConfig.get[String]("api.repositorySecret")
+      doiConfig.get[String]("api.repositorySecret"),
+      doiConfig.get[Boolean]("showHidden")
     )
   }
 }
