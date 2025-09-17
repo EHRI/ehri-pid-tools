@@ -1,7 +1,6 @@
 package models
 
-import play.api.libs.functional.syntax.toFunctionalBuilderOps
-import play.api.libs.json.{Format, Json, Reads, __}
+import play.api.libs.json.{Format, Json}
 
 import java.time.Instant
 

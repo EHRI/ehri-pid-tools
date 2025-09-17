@@ -14,10 +14,15 @@ case class SqlPidService @Inject()(db: Database, config: Configuration)(implicit
   private implicit val tombstoneParser: RowParser[Option[Tombstone]] = Macro.parser[Tombstone]("deleted_at", "client", "reason").?
   private implicit val pidParser: RowParser[Pid] = Macro.parser[Pid]("ptype", "value", "target", "tombstone")
 
-  override def findAll(ptype: PidType.Value): Future[Seq[Pid]] = Future {
+  override def findAll(ptype: PidType.Value, offset: Int = 0, limit: Int = 100): Future[Seq[Pid]] = Future {
     db.withConnection{ implicit conn =>
-      SQL"SELECT ptype, value, target FROM pids WHERE ptype = $ptype::pid_type"
-        .as(pidParser.*)
+      SQL"""SELECT ptype, value, target
+           FROM pids
+           WHERE ptype = $ptype::pid_type
+           ORDER BY created_at
+           OFFSET ${Math.max(0, offset)}
+           LIMIT ${Math.min(100, Math.max(0, limit))}
+           """.as(pidParser.*)
     }
   }(ec)
 
