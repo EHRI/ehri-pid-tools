@@ -29,6 +29,12 @@ package object mocks {
           )
         )
       }
+      case (GET, regex(doi)) if doi == "NOT/FINDABLE" => Action {
+        // Test fetching a DOI that does not have a 'findable' state:
+        val jsonText = resourceAsString("example.json")
+        val munged = jsonText.replace("\"state\": \"findable\"", "\"state\": \"registered\"")
+        Results.Ok(Json.parse(munged))
+      }
       case (GET, regex(_)) => Action {
         Results.Ok(resourceAsJson("example.json"))
       }

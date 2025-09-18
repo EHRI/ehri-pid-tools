@@ -62,7 +62,7 @@ class DoiController @Inject()(
   /**
    * Renders the list of DOIs.
    */
-  def index(params: ListParams): Action[AnyContent] = Action.async { implicit request =>
+  def index(params: ListParams = ListParams.empty): Action[AnyContent] = Action.async { implicit request =>
     doiService.listDoiMetadata(doiPrefix, DoiListParams(params)).map { doiMetadata =>
       Ok(views.html.dois.list(doiMetadata))
     }

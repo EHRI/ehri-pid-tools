@@ -19,6 +19,7 @@ case class DoiListParams(
 )
 
 object DoiListParams {
+  def empty: DoiListParams = DoiListParams()
   def apply(lp: ListParams): DoiListParams = DoiListParams(
     query = lp.query,
     page = lp.page,
@@ -31,7 +32,7 @@ trait DoiService {
 
   val DOI_ALPHABET = "0123456789abcdefghjkmnpqrstuvwxyz"
 
-  def listDoiMetadata(prefix: String, params: DoiListParams): Future[DoiMetadataList]
+  def listDoiMetadata(prefix: String, params: DoiListParams = DoiListParams.empty): Future[DoiMetadataList]
 
   def getDoiMetadata(doi: String): Future[DoiMetadata]
 

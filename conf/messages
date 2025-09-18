@@ -38,8 +38,10 @@ errors.ark.collisionError=This ARK has already been taken. \
 errors.ark.gone=The ARK you provided is no longer available.
 errors.ark.gone.explanation=This is a valid item identifier but the item is no longer available.
 
+pagination.previousPage=Previous Page
+pagination.nextPage=Next Page
+
 notice=NB
-pagination.totalPages=Total Pages: {0,number,integer}
 
 pid.citeThisItem=Cite this item
 pid.citationCopied=Citation copied!

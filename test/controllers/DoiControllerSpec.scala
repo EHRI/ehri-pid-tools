@@ -6,16 +6,19 @@ import org.mockito.ArgumentMatchers.any
 import org.mockito.Mockito.{times, verify, when}
 import org.scalatestplus.mockito.MockitoSugar
 import play.api
+import play.api.i18n.{I18nSupport, Lang, Messages, MessagesApi}
 import play.api.libs.json.{JsDefined, JsObject, JsString, Json}
 import play.api.test.Helpers._
 import play.api.test._
-import services.{DoiExistsException, DoiService, DoiServiceHandle, PidExistsException, PidService}
+import services._
 
 import scala.concurrent.Future
 
 
-class DoiControllerSpec extends AppSpec with DatabaseSupport with MockitoSugar {
+class DoiControllerSpec extends AppSpec with DatabaseSupport with MockitoSugar with I18nSupport {
 
+  override implicit def messagesApi: MessagesApi = inject[MessagesApi]
+  implicit def messages: Messages = messagesApi.preferred(Seq(Lang.defaultLang))
   private def controller = inject[DoiController]
   private val (prefix, suffix) = ("10.14454", "fxws-0523")
   private val basicAuthString = "Basic " + java.util.Base64.getEncoder
@@ -30,7 +33,7 @@ class DoiControllerSpec extends AppSpec with DatabaseSupport with MockitoSugar {
 
       status(result) mustBe OK
       contentType(result) mustBe Some("text/html")
-      contentAsString(result) must include ("Total Pages: 2") // FIXME: better test
+      contentAsString(result) must include (Messages("pagination.nextPage"))
     }
 
     "fetch a DOI as JSON" in {
@@ -50,6 +53,22 @@ class DoiControllerSpec extends AppSpec with DatabaseSupport with MockitoSugar {
       status(result) mustBe OK
       contentType(result) mustBe Some("text/html")
       contentAsString(result) must include ("DataCite Metadata Schema")
+    }
+
+    "show hidden DOIs when profile has showHidden enabled" in {
+      val request = FakeRequest(GET, routes.DoiController.get("NOT", "FINDABLE").url)
+      val result = controller.get("NOT", "FINDABLE").apply(request)
+
+      status(result) mustBe NOT_FOUND
+      contentType(result) mustBe Some("text/html")
+    }
+
+    "show a 404 for hidden DOIs when profile has showHidden" in {
+      val request = FakeRequest(GET, routes.DoiController.get("NOT", "FINDABLE").url + "?_profile=fakeprod")
+      val result = controller.get("NOT", "FINDABLE").apply(request)
+
+      status(result) mustBe NOT_FOUND
+      contentType(result) mustBe Some("text/html")
     }
 
     "fetch a DOI containing multiple path sections" in {
