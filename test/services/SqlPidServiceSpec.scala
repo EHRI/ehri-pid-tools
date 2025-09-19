@@ -26,6 +26,17 @@ class SqlPidServiceSpec extends AppSpec with DatabaseSupport {
       pids.get.target mustBe "https://example.com/pid-test-1"
     }
 
+    "fetch pids by ID list" in {
+      val pids = await(pidService.findAllWithValues(PidType.DOI, Seq("10.14454/fxws-0523", "10.14454/fxws-0524")))
+      val p1 = pids.get("10.14454/fxws-0523")
+      val p2 = pids.get("10.14454/fxws-0524")
+      p1 mustBe defined
+      p2 mustBe defined
+      p1.get.target mustBe "https://example.com/pid-test-1"
+      p2.get.target mustBe "https://example.com/pid-test-2"
+      p2.get.tombstone mustBe defined
+    }
+
     "fetch pids with tombstones" in {
       val pids = await(pidService.findById(PidType.DOI, "10.14454/fxws-0524"))
       pids mustBe defined

@@ -36,6 +36,15 @@ class DoiControllerSpec extends AppSpec with DatabaseSupport with MockitoSugar w
       contentAsString(result) must include (Messages("pagination.nextPage"))
     }
 
+    "list DOIs as JSON" in {
+      val request = FakeRequest(GET, routes.DoiController.index().url)
+        .withHeaders("Accept" -> "application/json")
+      val result = controller.index().apply(request)
+
+      status(result) mustBe OK
+      contentType(result) mustBe Some("application/vnd.api+json")
+    }
+
     "fetch a DOI as JSON" in {
       val request = FakeRequest(GET, routes.DoiController.get(prefix, suffix).url)
         .withHeaders("Accept" -> "application/json")

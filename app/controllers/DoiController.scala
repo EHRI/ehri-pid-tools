@@ -1,7 +1,7 @@
 package controllers
 
 import auth.AuthAction
-import models.{Doi, DoiMetadata, DoiProfile, DoiState, JsonApiData, JsonApiError, ListParams, Pid, PidType, TombstoneReason}
+import models.{Doi, DoiMetadata, DoiMetadataList, DoiProfile, DoiState, JsonApiData, JsonApiError, ListParams, Pid, PidType, TombstoneReason}
 import play.api.i18n.{I18nSupport, Messages}
 import play.api.libs.json.JsError.toJson
 import play.api.libs.json.{JsError, JsSuccess, JsValue, Json, Reads}
@@ -63,8 +63,18 @@ class DoiController @Inject()(
    * Renders the list of DOIs.
    */
   def index(params: ListParams = ListParams.empty): Action[AnyContent] = Action.async { implicit request =>
-    doiService.listDoiMetadata(doiPrefix, DoiListParams(params)).map { doiMetadata =>
-      Ok(views.html.dois.list(doiMetadata))
+    doiService.listDoiMetadata(doiPrefix, DoiListParams(params)).flatMap { doiMetadata =>
+      val dois = doiMetadata.items.map(_.id).collect { case Some(id) => id }
+      pidService.findAllWithValues(PidType.DOI, dois).map { doiMeta =>
+        val metadataWithTargets = doiMetadata.withPidMeta(pids = doiMeta)
+        render {
+          case Accepts.Html() =>
+            Ok(views.html.dois.list(metadataWithTargets))
+          case _ =>
+            Ok(metadataWithTargets)
+        }
+
+      }
     }
   }
 

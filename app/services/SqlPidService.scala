@@ -26,6 +26,21 @@ case class SqlPidService @Inject()(db: Database, config: Configuration)(implicit
     }
   }(ec)
 
+  override def findAllWithValues(ptype: PidType.Value, values: Seq[String]): Future[Map[String, Pid]] = Future {
+    db.withConnection { implicit conn =>
+      val list: Seq[Pid] = SQL"""SELECT p.ptype, p.value, p.target, t.client, t.reason, t.deleted_at
+           FROM pids p
+           LEFT JOIN tombstones t on p.id = t.pid_id
+           WHERE p.ptype = $ptype::pid_type AND p.value IN ($values)
+           ORDER BY created_at
+           """.as(pidParser.*)
+      values.foldLeft(Map.empty[String, Pid]) { case (acc, id) =>
+        val opt = list.find(_.value == id)
+        opt.fold(acc)(pid => acc + (id -> pid))
+      }
+    }
+  }(ec)
+
   override def findById(ptype: PidType.Value, value: String): Future[Option[Pid]] = Future {
     db.withConnection { implicit conn =>
       SQL"""SELECT p.ptype, p.value, p.target, t.client, t.reason, t.deleted_at

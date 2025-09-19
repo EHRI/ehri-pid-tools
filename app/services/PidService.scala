@@ -9,6 +9,8 @@ import scala.concurrent.Future
 trait PidService {
   def findAll(ptype: PidType.Value, offset: Int = 0, limit: Int = 100): Future[Seq[Pid]]
 
+  def findAllWithValues(ptype: PidType.Value, values: Seq[String]): Future[Map[String, Pid]]
+
   def findById(ptype: PidType.Value, value: String): Future[Option[Pid]]
 
   def findByTarget(ptype: PidType.Value, target: String): Future[Option[Pid]]
