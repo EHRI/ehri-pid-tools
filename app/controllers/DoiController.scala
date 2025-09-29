@@ -121,7 +121,7 @@ class DoiController @Inject()(
       case JsSuccess(Doi(metadata, target, _), _) =>
         val newSuffix = doiService.generateSuffix()
         val newDoi = s"$doiPrefix/$newSuffix"
-        val serviceUrl = routes.DoiController.get(doiPrefix, newSuffix).absoluteURL()
+        val serviceUrl = routes.DoiController.get(doiPrefix, newSuffix).absoluteURL(appConfig.https)
         val newMetadata = metadata.withDoi(newDoi).withUrl(serviceUrl)
 
         logger.debug(s"Registering new DOI with '$newDoi' and URL: $serviceUrl")

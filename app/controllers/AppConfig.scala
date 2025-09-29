@@ -6,6 +6,9 @@ import play.api.Configuration
 import javax.inject.Inject
 
 case class AppConfig @Inject()(config: Configuration) {
+
+  def https: Boolean = config.get[Boolean]("service.https")
+
   /**
    * Resolve a DOI.
    *
