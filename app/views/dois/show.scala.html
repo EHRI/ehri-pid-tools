@@ -206,7 +206,7 @@
                   @obj.nameIdentifiers.toSeq.flatten.map { ident =>
                     @if(ident.nameIdentifierScheme == "ORCID") {
                       <span class="contributor-orcid">
-                        <a href="@ident.nameIdentifier" target="_blank">
+                        <a href="https://orcid.org/@ident.nameIdentifier" target="_blank">
                           <img src="@routes.Assets.versioned("images/orcid-auth.svg")" alt="ORCID logo">
                         </a>
                       </span>
