@@ -26,6 +26,18 @@ errors.doi.tombstoneNotFound=The DOI provided either does not exist, or is not t
 errors.doi.collisionError=A DOI collision has occurred. This DOI has already been taken. \
   This error is usually transient and can be resolved by retrying the request.
 
+# Ark messages
+errors.ark.notFound=The identifier you provided does not exist, is unpublished, or is not valid.
+errors.ark.exception=Unexpected response: {0}
+errors.ark.registrationFailed=An error occurred while registering the ARK {0}. \
+  Please check the ARK metadata and try again.
+errors.ark.tombstoneFailed=Error creating tombstone for ARK {0}.
+errors.ark.tombstoneNotFound=The ARK provided either does not exist, or is not tombstoned.
+errors.ark.collisionError=This ARK has already been taken. \
+  This error is usually transient and can be resolved by retrying the request.
+errors.ark.gone=The ARK you provided is no longer available.
+errors.ark.gone.explanation=This is a valid item identifier but the item is no longer available.
+
 pagination.previousPage=Previous Page
 pagination.nextPage=Next Page
 
