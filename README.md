@@ -7,4 +7,7 @@ This is an embryonic set of tools for working with Persistent Identifiers (PIDs)
 At present, it consists of a proxy for the DataCite REST API and a registration service to enable
 the registration of DOIs for EHRI resources and the display of DOI landing pages.
 
-Almost nothing is finished yet though.
+TODO:
+ * flesh out index page with EHRI PID Policy
+ * Improve DOI landing pages
+ * Improve DOI search page

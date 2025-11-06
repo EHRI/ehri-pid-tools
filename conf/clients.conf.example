@@ -1,0 +1,5 @@
+auth {
+  clients {
+    document-blog: changeme
+  }
+}
