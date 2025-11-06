@@ -10,6 +10,15 @@ case class AppConfig @Inject()(config: Configuration) {
   def https: Boolean = config.get[Boolean]("service.https")
 
   /**
+   * Resolve an ORCID identifier.
+   *
+   * @param orcid the ORCID string
+   *
+   * @return an ORCID URL
+   */
+  def orcidUrl(orcid: String): String = s"https://orcid.org/$orcid"
+
+  /**
    * Resolve a DOI.
    *
    * @param doi  the DOI.
