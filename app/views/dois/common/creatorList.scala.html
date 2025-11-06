@@ -1,4 +1,4 @@
-@(creators: Seq[Creator])(implicit messages: Messages, request: RequestHeader)
+@(creators: Seq[Creator])(implicit messages: Messages, request: RequestHeader, config: AppConfig)
 
 @if(creators.nonEmpty) {
   <ul class="metadata-value metadata-value-list">
@@ -12,7 +12,7 @@
       <span property="creator" typeof="Person">@obj.familyName, @obj.givenName</span>
       @obj.nameIdentifiers.toSeq.flatten.map { ident =>
         @if(ident.nameIdentifierScheme == "ORCID") {
-          <a class="contributor-orcid" href="@ident.nameIdentifier" target="_blank">
+          <a class="contributor-orcid" href="@config.orcidUrl(ident.nameIdentifier)" target="_blank">
             <img src="@routes.Assets.versioned("images/orcid-auth.svg")" alt="ORCID logo">
           </a>
         }
