@@ -32,6 +32,8 @@ Test / javaOptions ++= Seq(
   s"-Dconfig.file=${(LocalRootProject / baseDirectory).value / "conf" / "test.conf"}",
 )
 
+// These resources are excluded from the build because they typically
+// contain access keys and secrets.
 val excludedResources = Seq(
   "doi.conf",
   "clients.conf"

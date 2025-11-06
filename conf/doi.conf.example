@@ -1,0 +1,24 @@
+# Configuration for the DOI service
+
+doi {
+  default {
+    prefix = 10.12345
+    resolverUrl = "https://handle.test.datacite.org"
+    api {
+      baseUrl = "https://api.test.datacite.org/dois"
+      repositoryId = "FABC.EFGH"
+      repositorySecret = "changeme"
+    }
+    showHidden = true
+  }
+  ehritest {
+    prefix = 10.23456
+    resolverUrl = "https://handle.test.datacite.org"
+    api {
+      baseUrl = "https://api.test.datacite.org/dois"
+      repositoryId = "ABCDE.FGHIJ."
+      repositorySecret = "changeme"
+    }
+    showHidden = true
+  }
+}
