@@ -13,7 +13,9 @@
             <li class="doi-list-item" id="doi-@doiMetadata.id">
               <header>
                 <h3 class="doi-heading">
-                  <a href="@routes.DoiController.get(doiMetadata.prefix, doiMetadata.suffix)">
+                  @defining(controllers.routes.DoiController.get(doiMetadata.prefix, doiMetadata.suffix)) { landingUrl =>
+                  <a href="@doiMetadata.url.getOrElse(landingUrl)">
+                  }
                   @dcm.title
                   </a>
                   @if(profile.showHidden) {
