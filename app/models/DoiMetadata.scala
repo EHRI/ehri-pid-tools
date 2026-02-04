@@ -14,19 +14,47 @@ case class DoiMetadata(id: Option[String], `type`: Option[String], attributes: J
   def state: DoiState.Value = (attributes \ "state").asOpt[DoiState.Value].getOrElse(DoiState.Draft)
   def prefix: String = id.flatMap(_.split("/").headOption).getOrElse("")
   def suffix: String = id.flatMap(_.split("/").lift(1)).getOrElse("")
+
+  /**
+   * The DOI title
+   */
   def title: Option[String] = (attributes \ "titles" \ 0 \ "title").asOpt[String]
+
+  /**
+   * Landing page URL
+   */
+  def url: Option[String] = (attributes \ "url").asOpt[String]
+
+  /**
+   * Content target, e.g. the thing the landing page points to.
+   */
   def target: Option[String] = meta.flatMap(json => (json \ "target").asOpt[String])
 
+  /**
+   * Update this object with a new DOI.
+   * @param doi the new DOI string
+   * @return an updated object
+   */
   def withDoi(doi: String): DoiMetadata = {
     val updatedAttributes = attributes.as[JsObject] + ("doi" -> JsString(doi))
     this.copy(id = Some(doi), attributes = updatedAttributes)
   }
 
+  /**
+   * Update this object with a new landing page URL.
+   * @param url the landing page URL
+   * @return an updated object
+   */
   def withUrl(url: String): DoiMetadata = {
     val updatedAttributes = attributes.as[JsObject] + ("url" -> JsString(url))
     this.copy(attributes = updatedAttributes)
   }
 
+  /**
+   * Update this object with additional metadata.
+   * @param pid a pid containing e.g. target or tombstone metadata
+   * @return an updated object
+   */
   def withPidMeta(pid: Pid): DoiMetadata = {
     val targetMeta = Json.obj("target" -> pid.target)
     val tombstoneMeta = pid.tombstone.fold(Json.obj())(t => Json.obj("tombstone" -> t))
