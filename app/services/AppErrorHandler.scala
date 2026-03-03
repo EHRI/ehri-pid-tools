@@ -1,5 +1,6 @@
 package services
 
+import controllers.AppConfig
 import play.api.http._
 import play.api.i18n.{I18nSupport, Messages, MessagesApi}
 import play.api.libs.json.Json
@@ -14,7 +15,7 @@ class AppErrorHandler @Inject() (
   jsonHandler: JsonHttpErrorHandler,
   htmlHandler: DefaultHttpErrorHandler,
   val messagesApi: MessagesApi
-) extends PreferredMediaTypeHttpErrorHandler(
+)(implicit config: AppConfig) extends PreferredMediaTypeHttpErrorHandler(
   "application/vnd.api+json" -> jsonHandler,
   "application/json" -> jsonHandler,
   "text/html"        -> htmlHandler,

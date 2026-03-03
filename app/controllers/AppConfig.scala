@@ -9,6 +9,10 @@ case class AppConfig @Inject()(config: Configuration) {
 
   def https: Boolean = config.get[Boolean]("service.https")
 
+  lazy val extraHeadContent: Option[String] =
+    config.getOptional[String]("service.extraHeadContent")
+
+
   /**
    * Resolve an ORCID identifier.
    *

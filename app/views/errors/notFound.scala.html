@@ -1,4 +1,4 @@
-@(errorCode: String)(implicit request: RequestHeader, messages: Messages)
+@(errorCode: String)(implicit request: RequestHeader, messages: Messages, config: AppConfig)
 
 @views.html.layout.base(Messages(errorCode)) {
   <div class="page-content">
