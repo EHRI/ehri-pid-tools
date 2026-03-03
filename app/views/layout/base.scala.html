@@ -1,4 +1,4 @@
-@(title: String, extraHead: Html = Html(""), extraFoot: Html = Html(""), vocab: Option[String] = None, bodyClasses: Seq[String] = Seq.empty)(content: Html)(implicit request: RequestHeader, messages: Messages)
+@(title: String, extraHead: Html = Html(""), extraFoot: Html = Html(""), vocab: Option[String] = None, bodyClasses: Seq[String] = Seq.empty)(content: Html)(implicit request: RequestHeader, messages: Messages, config: AppConfig)
 
 <html lang="en">
   <head>
@@ -9,8 +9,8 @@
     <link rel="stylesheet" media="screen" href="@routes.Assets.versioned("css/style.css")">
     <link rel="shortcut icon" type="image/png" href="@routes.Assets.versioned("images/favicon.png")">
 
+    @config.extraHeadContent.map(c => Html(c))
     @extraHead
-
   </head>
   <body @{if(bodyClasses.nonEmpty) Html(s"class=\"${bodyClasses.mkString}\"")}  @vocab.map(v => Html(s"vocab=\"$v\"")).getOrElse("")>
     <header class="main header">
