@@ -1,0 +1,8 @@
+@(message: String)(implicit request: RequestHeader, messages: Messages)
+
+@views.html.layout.base(Messages("errors.ark.gone")) {
+  <div class="page-content">
+    <h1>@Messages("errors.ark.gone")</h1>
+    <p>@Messages("errors.ark.gone.explanation")</p>
+  </div>
+}
