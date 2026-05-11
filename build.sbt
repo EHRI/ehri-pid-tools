@@ -1,3 +1,4 @@
+
 name := """ept"""
 organization := "eu.ehri.project"
 
@@ -43,6 +44,9 @@ val excludedResources = Seq(
 Universal / mappings := (Universal / mappings).value.filterNot { case (f, s) =>
   excludedResources contains f.getName
 }
+
+// Add a digest to assets and gzip them if required.
+pipelineStages := Seq(digest, gzip)
 
 // Adds additional packages into Twirl
 //TwirlKeys.templateImports += "eu.ehri.project.controllers._"

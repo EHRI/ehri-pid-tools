@@ -23,6 +23,11 @@ case class AppConfig @Inject()(config: Configuration) {
   def orcidUrl(orcid: String): String = s"https://orcid.org/$orcid"
 
   /**
+   * The resolver to use for production DOIs.
+   */
+  def doiResolverPrefix: String = config.get[String]("doi.default.resolverPrefix")
+
+  /**
    * Resolve a DOI.
    *
    * @param doi  the DOI.

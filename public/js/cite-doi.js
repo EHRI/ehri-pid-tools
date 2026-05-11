@@ -136,9 +136,8 @@ function interceptXHRUrl(originalUrl, replacementUrl, once = false) {
 document.onreadystatechange = function () {
   if (document.readyState === "complete") {
 
-    if (!productionDOI) {
-      interceptXHRUrl('https://doi.org/', 'https://api.test.datacite.org/dois/', true);
-    }
+    interceptXHRUrl('https://doi.org/', doiResolverPrefix, true);
+
     const cite = new Cite(doi);
     const citationText = document.getElementById('citation-text');
     const citeButton = document.getElementById('copy-citation');
