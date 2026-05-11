@@ -88,6 +88,7 @@
           const doiUrl = "@config.doiUrl(pid.value, prod)";
           const Cite = require('citation-js');
           const productionDOI = @prod;
+          const doiResolverPrefix = "@config.doiResolverPrefix";
 
           let loadPreview = function () {
             let previewContainer = document.getElementById("preview-container");
