@@ -11,7 +11,7 @@
     grid-template-areas:
       "banner banner"
       "article sidebar";
-    grid-template-columns: 1fr 30%;
+    grid-template-columns: 1fr min-content;
   }
 }
 
