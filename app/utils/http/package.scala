@@ -1,6 +1,6 @@
 package utils
 
-import java.net.URLEncoder
+import java.net.{URLDecoder, URLEncoder}
 import java.nio.charset.StandardCharsets
 
 package object http {
@@ -27,4 +27,9 @@ package object http {
    */
   def joinQueryString(qs: Map[String, Seq[String]]): String =
     joinQueryString(qs.toSeq.flatMap { case (key, values) => values.map(value => key -> value)})
+
+  /**
+   * Decode an URL as UTF-8
+   */
+  def urlDecode(url: String): String = URLDecoder.decode(url, StandardCharsets.UTF_8)
 }
