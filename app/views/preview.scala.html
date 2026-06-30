@@ -15,7 +15,7 @@
       <a href="@url" aria-label="@Messages("target.link.accessibility")">
         <h2 class="target-title" property="name">@title</h2>
       </a>
-      <h3><a href="@url">@url</a></h3>
+      <h3><a href="@url">@_root_.utils.http.urlDecode(url)</a></h3>
     </header>
     <a href="@url" class="target-description" aria-label="@Messages("target.link.accessibility")">
       @Html(desc)
