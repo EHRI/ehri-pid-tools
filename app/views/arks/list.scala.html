@@ -1,0 +1,25 @@
+@(arks: Seq[Ark], prod: Boolean = false)(implicit request: RequestHeader, messages: Messages, config: AppConfig)
+
+@views.html.layout.base("ARK List") {
+  <div class="page-content">
+    <article class="search-list">
+      <ul class="ark-list">
+      @for(ark <- arks) {
+          <li class="ark-list-item" id="ark-@ark.metadata.id">
+            <header>
+              <h3 class="ark-heading">
+                <a href="@routes.ArkController.get(ark.metadata.prefix, ark.metadata.suffix)">@ark.metadata.id</a>
+              </h3>
+            </header>
+            <div class="ark-description">
+              <p><a class="ark-target" href="@ark.target">@ark.target</a></p>
+            </div>
+          </li>
+      }
+      </ul>
+    </article>
+    <aside id="sidebar">
+
+    </aside>
+  </div>
+}
