@@ -1,0 +1,66 @@
+
+// PID policy page
+
+.policy-page {
+
+  .pid-logo {
+    float: left;
+    margin: 0 $space-md 0 0;
+    img {
+      width: 8rem;
+    }
+
+    strong {
+      font-weight: var(--font-weight-bold);
+    }
+  }
+
+  article section {
+    // Keep anchor-linked sections clear of the header when jumped to
+    scroll-margin-top: $space-lg;
+    margin-bottom: $space-xl;
+
+    display: flow-root;
+
+    &:last-child {
+      margin-bottom: 0;
+    }
+
+    aside.note {
+      border: 1px $grey-dark;
+      background-color: $grey-light;
+      padding: $space-md;
+    }
+  }
+}
+
+.policy-toc {
+  margin: $space-lg 0;
+
+  ul {
+    display: flex;
+    flex-wrap: wrap;
+    gap: $space-sm;
+    margin: 0;
+    padding: 0;
+  }
+
+  li {
+    list-style: none;
+  }
+
+  a {
+    display: inline-block;
+    padding: $space-xs $space-sm;
+    border-radius: $space-xs;
+    font-size: var(--font-size-sm);
+    font-weight: var(--font-weight-bold);
+    color: var(--theme-fg-muted);
+    background-color: var(--grey-light);
+    text-decoration: none;
+
+    &:hover {
+      background-color: darken($grey-light, 5%);
+    }
+  }
+}

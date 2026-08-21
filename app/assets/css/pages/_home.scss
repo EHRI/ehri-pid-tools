@@ -38,16 +38,29 @@
 
 .header.main {
   .header-menu {
-    gap: 1rem;
+    gap: $space-md;
   }
 
-  padding: 1rem var(--margin-page-h);
+  padding: $space-md var(--margin-page-h);
 
   .logo {
     margin-bottom: unset;
 
     img {
-      max-width: 120px;
+      max-width: 90%;
     }
+  }
+}
+
+.pid-info {
+  display: grid;
+  grid-template-columns: 1fr;
+  gap: $space-lg;
+  margin-bottom: $space-xl;
+
+  .pid-info-type img {
+    width: 3rem;
+    float: left;
+    margin-right: $space-sm;
   }
 }

@@ -43,18 +43,6 @@
   }
 }
 
-.header.main .logo img {
-  width: 69px;
-
-  @media (min-width: $breakpoint-tablet) {
-    width: 117px;
-  }
-
-  @media (min-width: $breakpoint-laptop) {
-    width: unset;
-  }
-}
-
 .header.main .title {
   font-size: var(--font-size-md);
   margin-left: $space-md;
@@ -156,7 +144,7 @@
     position: relative;
     top: $space-sm;
 
-    background-color: var(--theme-fg);
+    background-color: var(--theme-bg-accent);
     border-radius: 3px;
 
     z-index: 1001;

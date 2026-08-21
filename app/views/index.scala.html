@@ -6,15 +6,62 @@
     <p>
         This service displays metadata about articles and other outputs created by
         the <a href="https://www.ehri-project.eu">European Holocaust Research Infrastructure (EHRI)</a>
-          that have been assigned persistent identifiers (PIDs for short). EHRI currently uses
-          <a href="https://datacite.org">DataCite</a> to register <a href="@controllers.routes.DoiController.index()">Digital Object Identifiers
-          (DOIs)</a> for articles on the <a href="https://blog.ehri-project.eu">EHRI Document Blog</a>,
-          with more outputs to follow as per the
-          <a href="https://portal.ehri-project.eu/help/pid-roadmap">EHRI PID Roadmap</a>.
+          that have been assigned persistent identifiers (PIDs for short). EHRI assigns different
+          kinds of PID depending on the type of resource:
     </p>
+
+    <div class="pid-info">
+      <div class="pid-info-type doi">
+        <a href="@routes.HomeController.policy()#doi">
+          <img src="@controllers.routes.Assets.versioned("images/doi_logo.svg")" alt="DOI Logo image"/>
+        </a>
+        <p>
+          EHRI uses <a href="https://datacite.org">DataCite</a> to register Digital Object Identifiers
+            (DOIs) for publications and datasets.
+        </p>
+      </div>
+      <div class="pid-info-type ark">
+        <a href="@routes.HomeController.policy()#ark">
+          <img src="@controllers.routes.Assets.versioned("images/arka_logo.svg")" alt="ARK Alliance Logo image"/>
+        </a>
+        <p>
+          EHRI's <a href="https://portal.ehri-project.eu">online portal</a> uses
+            Archival Resource Keys (ARKs) for metadata and other information resources.
+        </p>
+      </div>
+      <div class="pid-info-type orcid">
+        <a href="@routes.HomeController.policy()#orcid">
+        <img src="@controllers.routes.Assets.versioned("images/orcid_logo.svg")" alt="ORCID Logo image"/>
+        </a>
+        <p>
+          <a href="https://orcid.org">ORCID</a> iDs identify researchers and their contributions to
+          EHRI outputs.
+        </p>
+      </div>
+      <div class="pid-info-type ror">
+        <a href="@routes.HomeController.policy()#ror">
+          <img src="@controllers.routes.Assets.versioned("images/ror_logo.svg")" alt="ROR Logo image"/>
+        </a>
+        <p>
+          EHRI is registered with the research organization registry as
+          <a href="https://ror.org/00zsk2t64">ror:00zsk2t64</a>.
+        </p>
+      </div>
+      <div class="pid-info-type issn">
+        <a href="@routes.HomeController.policy()#issn">
+          <img src="@controllers.routes.Assets.versioned("images/issn_logo.svg")" alt="ISSN Logo image"/>
+        </a>
+        <p>
+          The <a href="https://blog.ehri-project.eu">EHRI Document Blog</a>, as a serial publication,
+          carries the e-ISSN <a href="https://publishers.issn.org/resource/ISSN/3118-0191">3118-0191</a>.
+        </p>
+      </div>
+    </div>
     <p>
-      <strong>Please note: </strong> This service is currently under construction and will eventually contain
-      information about EHRI PID policies.
+      See the
+      <a href="@routes.HomeController.policy()">@Messages("pid.policy")</a> for more information,
+        including details of versioning, termination, and assignment of responsibilities.
     </p>
+
   </section>
 }
