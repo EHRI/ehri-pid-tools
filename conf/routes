@@ -1,6 +1,7 @@
 # Routes file
 
 GET           /                                      controllers.HomeController.index()
+GET           /policy                                controllers.HomeController.policy()
 
 # DOI operations
 GET           /dois                                  controllers.DoiController.index(params: models.ListParams ?= models.ListParams.empty)

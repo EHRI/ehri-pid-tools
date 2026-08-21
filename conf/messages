@@ -35,6 +35,8 @@ pid.citeThisItem=Cite this item
 pid.citationCopied=Citation copied!
 pid.details=Details
 pid.rights=Rights
+pid.policy=EHRI Persistent Identifier Policy
+pid.policy.nav=PID Policy
 
 doi.doi=DOI: {}
 doi.list=Registered DOIs

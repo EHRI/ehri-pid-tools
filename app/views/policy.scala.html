@@ -1,0 +1,174 @@
+@()(implicit request: RequestHeader, messages: Messages, config: AppConfig)
+
+@views.html.layout.base(Messages("pid.policy")) {
+  <div class="page-content policy-page">
+    <header>
+      <h1>@Messages("pid.policy")</h1>
+      <p>
+        This page describes how and why EHRI assigns persistent identifiers (PIDs) to the resources
+        it publishes, superseding the
+        <a href="https://portal.ehri-project.eu/help/pid-roadmap">EHRI PID Roadmap</a>, and
+          should be considered the authoritative source for current EHRI PID policy.
+      </p>
+      <p>
+        This page is a work-in-progress and will be updated in a continuous, rolling manner.
+      </p>
+      <nav class="policy-toc" aria-label="Sections">
+        <ul>
+          <li><a href="#overview">Overview</a></li>
+          <li><a href="#doi">Digital Object Identifiers (DOIs)</a></li>
+          <li><a href="#ark">Archival Resource Keys (ARKs)</a></li>
+          <li><a href="#orcid">ORCID</a></li>
+          <li><a href="#ror">Research Organization Registry (ROR)</a></li>
+          <li><a href="#issn">e-ISSN</a></li>
+        </ul>
+      </nav>
+    </header>
+    <article>
+      <section id="overview">
+        <h2>Overview</h2>
+        <p>
+          EHRI uses a number of different PID types depending on the type of resources being
+          identified and who has custody and editorial control over the original data.
+          Responsibility for the accuracy and quality of PID metadata and the integrity of
+          their relationship to the underlying resources rests with the EHRI-ERIC Central Hub.
+        </p>
+        <aside class="note">
+          <strong>Note: </strong>
+          Scholarly outputs published in journals (and similar) are considered second order data
+          produced by EHRI-ERIC (and its predecessor projects) and thus hosted by a third party,
+          the HAL open science platform at
+            <a href="https://hal.science/EHRI">https://hal.science/EHRI</a>.
+        </aside>
+      </section>
+
+      <section id="doi">
+        <h2>Digital Object Identifiers (DOIs)</h2>
+        <picture class="pid-logo">
+          <img src="@controllers.routes.Assets.versioned("images/doi_logo.svg")"
+          alt="DOI Logo image"/>
+        </picture>
+        <p>
+          EHRI assigns DOIs to resources for which we have editorial control and management
+          responsibility for the publication lifecycle. These currently include posts on the
+          <a href="https://blog.ehri-project.eu">EHRI Document Blog</a>,
+            datasets on the <a href="https://geodata.ehri-project.eu">Geospatial Repository</a>,
+            and scholarly <a href="https://www.ehri-project.eu/ehri-online-editions/">Online Editions</a>.
+          More resources may be added in future.
+          EHRI uses <a href="https://datacite.org">DataCite</a> to register DOIs with the prefix
+          <a href="@controllers.routes.DoiController.index()">10.82169</a>.
+        </p>
+        <p>
+          DOI URLs typically resolve to a landing page which includes:
+        </p>
+        <ul>
+          <li>the complete DOI, in web-linked form;</li>
+          <li>a link to the underlying item (web page; dataset, etc);</li>
+          <li>citation metadata: title, DOI, author(s), publication date, rights/licence and
+            version;</li>
+          <li>where applicable, a link to prior versions or related resources, translations, etc.</li>
+        </ul>
+        <h3 id="doi-versioning">Versioning and Removal</h3>
+        <p>
+          A new DOI is minted only for a significant change to an item's content; minor corrections
+          (spelling, grammar, formatting) retain the existing identifier. When a resource <i>does</i>
+            receive a new DOI the old one will be linked as a &quot;related identifier&quot; where feasible.
+        </p>
+        <p>
+          If a resource is removed or becomes unavailable, its DOI landing
+          page will remain accessible but
+          return a <code>410</code> &quot;GONE&quot; HTTP status acknowledging the item's prior existence,
+            rather than a <code>404</code> &quot;Not Found&quot; page. The is referred to as a &quot;tombstone&quot; page.
+        </p>
+      </section>
+
+      <section id="ark">
+        <h2>Archival Resource Keys (ARKs)</h2>
+        <picture class="pid-logo">
+          <img src="@controllers.routes.Assets.versioned("images/arka_logo.svg")" alt="ARK Alliance Logo image"/>
+        </picture>
+        <p>
+          Archival Resource Keys (ARKs) are used by EHRI to identify resources on the
+          <a href="https://portal.ehri-project.eu">EHRI Portal</a> such as
+            collection-holding institutions, descriptions of archival material, authority
+            records (people, corporate bodies, families), and controlled vocabularies.
+            EHRI is registered with the <a href="https://arks.org">ARK Alliance</a> with
+            Name Assigning Authority Number (NAAN) <a href="https://arks.org/ark:41045">41045</a>
+            and &quot;mints&quot; its own ARKs, not relying on an external authority.
+        </p>
+        <p>ARKs on the EHRI Portal share a common <i>shoulder</i> prefix "<code>p0</code>"
+          to the section of the identifier following the NAAN. If resources external to the
+          EHRI Portal are in future assigned ARKs with the same NAAN they will be given a
+          distinct shoulder.
+        </p>
+        <p>
+          Unlike DOIs, ARK URLs resolve directly to the resource, not a landing page. EHRI
+          ARKs support the &quot;??&quot; inflection; that is, appending &quot;??&quot; to the
+          URL will return a brief plain text metadata statement concerning the resource.
+        </p>
+
+        <h3 id="ark-versioning">Versioning and Removal</h3>
+        <p>
+          ARK-identified resources on the EHRI Portal are not versioned, in that the content
+          of resources they point to can (and do) change when updated by EHRI or the original
+          data provider. The EHRI Portal provides information about <i>when</i> a resource was
+          last updated.
+        </p>
+        <p>
+          When an ARK-identified resource is removed from the EHRI Portal the URL will show
+          a tombstone page (with an HTTP <code>410 Gone</code> status code) containing the
+            date at which the item was deleted.
+        </p>
+      </section>
+
+      <section id="orcid">
+        <h2>ORCID</h2>
+        <picture class="pid-logo">
+          <img src="@controllers.routes.Assets.versioned("images/orcid_logo.svg")" alt="ORCID Logo image"/>
+        </picture>
+        <p>
+          <a href="https://orcid.org">ORCID</a> identifiers are used to disambiguate researchers and
+          record their contributions to EHRI outputs. Support currently differs by system: the
+          <a href="https://blog.ehri-project.eu">EHRI Document Blog</a> records contributor ORCID
+          iDs as entered by administrators. Authenticated OAuth2 sign-in with ORCID on the EHRI
+          Portal is planned, but not available as of 2026.
+        </p>
+      </section>
+
+      <section id="ror">
+        <h2>Research Organization Registry (ROR)</h2>
+        <picture class="pid-logo">
+          <img src="@controllers.routes.Assets.versioned("images/ror_logo.svg")" alt="ROR Logo image"/>
+        </picture>
+        <p>
+          EHRI is registered with the
+          Research Organization Registry as <a href="https://ror.org/00zsk2t64">ror:00zsk2t64</a>,
+          for use in affiliation and funder metadata, as well as the publisher of various resources
+          identified by a DOI.
+        </p>
+      </section>
+
+      <section id="issn">
+        <h2>e-ISSN</h2>
+        <picture class="pid-logo">
+          <img src="@controllers.routes.Assets.versioned("images/issn_logo.svg")" alt="ISSN Logo image"/>
+        </picture>
+        <p>
+          The <a href="https://blog.ehri-project.eu">EHRI Document Blog</a>, as a serial publication,
+          has been assigned the electronic International Standard Serial Number (e-ISSN)
+          <a href="https://publishers.issn.org/resource/ISSN/3118-0191">3118-0191</a>.
+        </p>
+      </section>
+
+      <section id="termination">
+        <h2>Termination and/or Handover of PID services</h2>
+        <p>
+          Should EHRI-ERIC wind down and no longer be able to maintain PID metadata,
+          responsibility for DOIs and other PIDs mediated by a third-party would be
+          transferred to a suitable consortium member institution.
+        </p>
+
+      </section>
+    </article>
+  </div>
+}
