@@ -7,6 +7,7 @@ version := "1.0-SNAPSHOT"
 lazy val root = (project in file(".")).enablePlugins(PlayScala, SbtWeb)
 
 scalaVersion := "2.13.16"
+scalacOptions += "-release:21"
 
 libraryDependencies += guice
 libraryDependencies += jdbc
