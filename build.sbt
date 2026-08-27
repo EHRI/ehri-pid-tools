@@ -57,3 +57,6 @@ pipelineStages := Seq(digest, gzip)
 
 // In the build artefact, don't include the app name
 topLevelDirectory := None
+
+// This makes the app command-line more readable
+enablePlugins(LauncherJarPlugin)
