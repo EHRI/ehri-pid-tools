@@ -1,6 +1,6 @@
 package services
 
-import anorm.{Macro, RowParser, SqlStringInterpolation}
+import anorm.{Macro, RowParser, SqlParser, SqlStringInterpolation}
 import models.{Pid, PidType, Tombstone}
 import org.postgresql.util.PSQLException
 import play.api.Configuration
@@ -125,6 +125,16 @@ case class SqlPidService @Inject()(db: Database, config: Configuration)(implicit
     db.withConnection { implicit conn =>
       SQL"DELETE FROM tombstones WHERE pid_id = (SELECT id FROM pids WHERE ptype = $ptype::pid_type AND value = $value)"
         .executeUpdate() == 1
+    }
+  }(ec)
+
+  override def countTombstones(ptype: PidType.Value): Future[Int] = Future {
+    db.withConnection { implicit conn =>
+      SQL"""SELECT COUNT(*)::int
+           FROM pids p
+           JOIN tombstones t ON p.id = t.pid_id
+           WHERE p.ptype = $ptype::pid_type"""
+        .as(SqlParser.scalar[Int].single)
     }
   }(ec)
 }

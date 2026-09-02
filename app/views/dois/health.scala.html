@@ -1,0 +1,51 @@
+@(doiSummary: Option[TargetCheckSummary], doiTombstoned: Int, failures: Seq[TargetCheck])(implicit request: RequestHeader, messages: Messages, config: AppConfig)
+
+@doiLandingUrl(value: String) = @{
+  value.split("/", 2) match {
+    case Array(prefix, suffix) => controllers.routes.DoiController.get(prefix, suffix).url
+    case _ => "#"
+  }
+}
+
+@dateFormat = @{ java.time.format.DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm").withZone(java.time.ZoneOffset.UTC) }
+
+@views.html.layout.base(Messages("pid.health.doi")) {
+  <div class="page-content health-page">
+    <header>
+      <h1>@Messages("pid.health.doi")</h1>
+      <p><a href="@routes.HealthController.index()">&larr; @Messages("pid.health")</a></p>
+    </header>
+
+    <section class="health-summary">
+      @views.html.dois.common.healthCard(doiSummary, doiTombstoned)
+    </section>
+
+    <section class="health-failures">
+      <h2>@Messages("pid.health.failuresHeading")</h2>
+      @if(failures.isEmpty) {
+        <p>@Messages("pid.health.noFailures")</p>
+      } else {
+        <table class="health-table">
+          <thead>
+            <tr>
+              <th>@Messages("pid.health.value")</th>
+              <th>@Messages("pid.health.target")</th>
+              <th>@Messages("pid.health.status")</th>
+              <th>@Messages("pid.health.lastChecked")</th>
+            </tr>
+          </thead>
+          <tbody>
+            @failures.map { f =>
+              <tr>
+                <td><a href="@doiLandingUrl(f.value)">@f.value</a></td>
+                <td class="health-target"><a href="@f.target" target="_blank" rel="noopener">@f.target</a></td>
+                <td>@f.statusCode.map(_.toString).getOrElse("-")</td>
+                <td>@dateFormat.format(f.checkedAt)</td>
+              </tr>
+            }
+          </tbody>
+        </table>
+      }
+    </section>
+  </div>
+}

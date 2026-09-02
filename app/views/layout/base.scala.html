@@ -50,14 +50,21 @@
 
     <footer class="main footer">
       <div class="container footer-row">
-        <nav class="footer-services" aria-label="@Messages("footer.services")">
-          <ul>
-            <li><a href="https://www.ehri-project.eu/">@Messages("footer.services.home")</a></li>
-            <li><a href="https://portal.ehri-project.eu/">@Messages("footer.services.portal")</a></li>
-            <li><a href="https://blog.ehri-project.eu/">@Messages("footer.services.blog")</a></li>
-            <li><a href="https://geodata.ehri-project.eu/">@Messages("footer.services.geodata")</a></li>
-          </ul>
-        </nav>
+        <div class="footer-links">
+          <nav class="footer-services" aria-label="@Messages("footer.services")">
+            <ul class="footer-link-list">
+              <li><a href="https://www.ehri-project.eu/">@Messages("footer.services.home")</a></li>
+              <li><a href="https://portal.ehri-project.eu/">@Messages("footer.services.portal")</a></li>
+              <li><a href="https://blog.ehri-project.eu/">@Messages("footer.services.blog")</a></li>
+              <li><a href="https://geodata.ehri-project.eu/">@Messages("footer.services.geodata")</a></li>
+            </ul>
+          </nav>
+          <nav class="footer-health" aria-label="@Messages("pid.health")">
+            <ul class="footer-link-list">
+              <li><a href="@routes.HealthController.index()">@Messages("pid.health")</a></li>
+            </ul>
+          </nav>
+        </div>
         <div class="copyright">
           © @java.time.Year.now.getValue EHRI-ERIC.
         </div>

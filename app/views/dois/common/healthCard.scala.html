@@ -1,0 +1,25 @@
+@(doiSummary: Option[TargetCheckSummary], doiTombstoned: Int, detailsLink: Option[Call] = None)(implicit messages: Messages, config: AppConfig)
+
+@failingClass(n: Int) = @{ if (n > 0) "health-card-sublabel-failing" else "" }
+
+@cardBody(s: TargetCheckSummary) = {
+  <img src="@controllers.routes.Assets.versioned("images/doi_logo.svg")" alt="DOI logo" class="health-card-icon">
+  <div class="health-card-body">
+    <div class="health-card-main">
+      <span class="health-card-count">@{s.checked - s.failing}</span>
+      <span class="health-card-label">@Messages("pid.health.doiResolvingLabel")</span>
+    </div>
+    <span class="health-card-sublabel @failingClass(s.failing)">@Messages("pid.health.doiFailingCount", s.failing)</span>
+    <span class="health-card-sublabel">@Messages("pid.health.doiTombstoned", doiTombstoned)</span>
+  </div>
+}
+
+@doiSummary.map { s =>
+  @detailsLink.map { link =>
+    <a class="health-card" href="@link">@cardBody(s)</a>
+  }.getOrElse {
+    <div class="health-card">@cardBody(s)</div>
+  }
+}.getOrElse {
+  <p>@Messages("pid.health.noChecks")</p>
+}

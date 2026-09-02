@@ -2,11 +2,14 @@
 
 GET           /                                      controllers.HomeController.index()
 GET           /policy                                controllers.HomeController.policy()
+GET           /health                                controllers.HealthController.index()
 
 # DOI operations
 GET           /dois                                  controllers.DoiController.index(params: models.ListParams ?= models.ListParams.empty)
 GET           /dois/:prefix/*suffix                  controllers.DoiController.get(prefix: String, suffix: String)
 GET           /dois/example                          controllers.DoiController.example()
+GET           /dois/target-health                    controllers.DoiController.targetHealth()
+GET           /dois/health                           controllers.DoiController.health()
 +nocsrf
 POST          /dois                                  controllers.DoiController.register()
 +nocsrf

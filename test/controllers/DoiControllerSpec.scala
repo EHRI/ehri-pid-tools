@@ -55,6 +55,35 @@ class DoiControllerSpec extends AppSpec with DatabaseSupport with MockitoSugar w
       contentAsString(result) must include (s""""prefix":"$prefix"""")
     }
 
+    "report DOIs failing their target health check" in {
+      val checkService = inject[TargetCheckService]
+      await(checkService.recordResult(models.PidType.DOI, s"$prefix/$suffix", "https://example.com/pid-test-1", ok = false, Some(404), None))
+
+      val request = FakeRequest(GET, routes.DoiController.targetHealth().url)
+      val result = controller.targetHealth().apply(request)
+
+      status(result) mustBe OK
+      contentAsString(result) must include (s""""value":"$prefix/$suffix"""")
+      contentAsString(result) must include (""""statusCode":404""")
+    }
+
+    "show the DOI health details page, linking failing DOIs to their landing page" in {
+      val checkService = inject[TargetCheckService]
+      await(checkService.recordResult(models.PidType.DOI, s"$prefix/$suffix", "https://example.com/pid-test-1", ok = false, Some(404), None))
+
+      val request = FakeRequest(GET, routes.DoiController.health().url)
+      val result = controller.health().apply(request)
+
+      status(result) mustBe OK
+      contentType(result) mustBe Some("text/html")
+      contentAsString(result) must include (routes.DoiController.get(prefix, suffix).url)
+      contentAsString(result) must include ("https://example.com/pid-test-1")
+      // the summary card is included, but shouldn't link back to this same page
+      contentAsString(result) must include ("health-card")
+      contentAsString(result) must not include ("<a class=\"health-card")
+      contentAsString(result) must include ("1 failing to resolve")
+    }
+
     "fetch a DOI page as HTML by default" in {
       val request = FakeRequest(GET, routes.DoiController.get(prefix, suffix).url)
       val result = controller.get(prefix, suffix).apply(request)
