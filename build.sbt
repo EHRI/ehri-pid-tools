@@ -6,7 +6,7 @@ version := "1.0-SNAPSHOT"
 
 lazy val root = (project in file(".")).enablePlugins(PlayScala, SbtWeb)
 
-scalaVersion := "2.13.16"
+scalaVersion := "2.13.18"
 scalacOptions += "-release:21"
 
 libraryDependencies += guice
@@ -16,14 +16,14 @@ libraryDependencies += ws
 libraryDependencies += caffeine
 
 // Anorm DB lib
-libraryDependencies += "org.playframework.anorm" %% "anorm" % "2.8.1"
-libraryDependencies += "org.playframework.anorm" %% "anorm-postgres" % "2.8.1"
+libraryDependencies += "org.playframework.anorm" %% "anorm" % "3.1.0"
+libraryDependencies += "org.playframework.anorm" %% "anorm-postgres" % "3.1.0"
 
 // Play JSON lib
-libraryDependencies += "org.playframework" %% "play-json" % "3.0.4"
+libraryDependencies += "org.playframework" %% "play-json" % "3.0.6"
 
 // Site previews
-libraryDependencies += "org.jsoup" % "jsoup" % "1.16.1"
+libraryDependencies += "org.jsoup" % "jsoup" % "1.23.1"
 
 // Testing
 libraryDependencies += "org.scalatestplus.play" %% "scalatestplus-play" % "7.0.1" % Test
