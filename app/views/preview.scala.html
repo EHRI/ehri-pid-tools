@@ -1,6 +1,6 @@
 @(url: String, title: String, desc: String, image: Option[String])(implicit messages: Messages)
 
-<div class="target-card">
+<div class="target-card"@if(url.nonEmpty) { resource="#target" typeof="WebPage" }>
   <div class="target-img">
     <a href="@url" aria-label="@Messages("target.link.accessibility")">
       @image.map { src =>
