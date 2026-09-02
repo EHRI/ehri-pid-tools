@@ -33,7 +33,7 @@
                   <div class="metadata-label sr-only">
                     @Messages("dataCite.creators")
                 </div>
-                @views.html.dois.common.creatorList(dcm.creators)
+                @views.html.dois.common.nameList(dcm.creators)
               </div>
               <div class="doi-list-item-body-details">
                 @doiMetadata.id.map(id => config.doiUrl(id, prod)).map { doiUrl =>

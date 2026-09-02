@@ -243,19 +243,26 @@
   }
 }
 
-.contributors-list {
-  list-style-type: none;
-  padding: 0;
-}
-
-.contributor-item {
-  margin-bottom: 0.5rem;
+.name-item {
   display: flex;
+  flex-direction: row;
   align-items: center;
 }
 
+.landing-page .name-list {
+  display: flex;
+  flex-direction: column;
+
+  li.name-item {
+    &:after {
+      // overrides standard list item
+      content: '';
+    }
+  }
+}
+
 .contributor-role {
-  color: #777;
+  color: var(--theme-fg-muted);
   margin-left: 0.5rem;
   font-size: 0.9rem;
 }

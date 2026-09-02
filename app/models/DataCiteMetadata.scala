@@ -125,17 +125,26 @@ case class Identifier(
   identifierType: String = "DOI"
 )
 
+sealed trait Name {
+  def name: String
+  def nameType: Option[NameType.Value]
+  def givenName: Option[String]
+  def familyName: Option[String]
+  def nameIdentifiers: Option[List[NameIdentifier]]
+  def affiliations: Option[List[Affiliation]]
+}
+
 /**
  * Represents a creator (author)
  */
 case class Creator(
-  name: Option[String] = None,
+  name: String,
   nameType: Option[NameType.Value] = None,
   givenName: Option[String] = None,
   familyName: Option[String] = None,
   nameIdentifiers: Option[List[NameIdentifier]] = None,
   affiliations: Option[List[Affiliation]] = None
-)
+) extends Name
 
 /**
  * Represents a contributor
@@ -148,7 +157,7 @@ case class Contributor(
   nameIdentifiers: Option[List[NameIdentifier]] = None,
   affiliations: Option[List[Affiliation]] = None,
   contributorType: Option[ContributorType.Value] = None
-)
+) extends Name
 
 /**
  * Represents a title

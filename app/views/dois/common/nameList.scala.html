@@ -1,0 +1,29 @@
+@(names: Seq[Name], listType: String = "creator", afterEach: Name => Html = _ => Html(""))(implicit messages: Messages, request: RequestHeader, config: AppConfig)
+
+@if(names.nonEmpty) {
+  <ul class="metadata-value metadata-value-list name-list">
+  @for(name <- names) {
+    <li class="name-item">
+    @if(name.nameType.contains(NameType.Organizational)) {
+      <span property="@listType" typeof="Organization">
+        <span property="name">@name.name</span>
+      </span>
+    } else {
+      @name.familyName.zip(name.givenName).map { case (fn, gn) =>
+        <span property="@listType" typeof="Person">@fn, @gn</span>
+      }.getOrElse {
+        <span property="@listType" typeof="Person">@name.name</span>
+      }
+      @name.nameIdentifiers.toSeq.flatten.map { ident =>
+        @if(ident.nameIdentifierScheme == "ORCID") {
+          <a class="contributor-orcid" href="@config.orcidUrl(ident.nameIdentifier)" target="_blank">
+            <img src="@routes.Assets.versioned("images/orcid_logo.svg")" alt="ORCID logo">
+          </a>
+        }
+      }
+      @afterEach(name)
+    }
+    </li>
+  }
+  </ul>
+}

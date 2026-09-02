@@ -7,6 +7,10 @@
   padding: 0;
 }
 
+.doi-list .name-list {
+  flex-direction: row;
+}
+
 .doi-list-item {
   list-style-type: none;
   margin: 0;
