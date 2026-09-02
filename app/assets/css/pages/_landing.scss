@@ -107,6 +107,26 @@
     overflow-wrap: anywhere;
     word-wrap: anywhere;
     line-height: 2.2rem;
+    display: flex;
+    align-items: center;
+    gap: $space-sm;
+  }
+}
+
+.doi-copy-button {
+  flex-shrink: 0;
+  font-size: $font-size-sm;
+  line-height: 1;
+  padding: $space-xs $space-sm;
+  border: 2px solid var(--theme-fg-accent);
+  border-radius: var(--input-border-radius);
+  background-color: transparent;
+  color: var(--theme-fg-accent);
+  cursor: pointer;
+
+  &:hover {
+    border-color: var(--theme-bg-accent);
+    background-color: var(--theme-bg-accent);
   }
 }
 
