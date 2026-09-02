@@ -21,7 +21,6 @@
   @defining(relatedIdentifiers.filter(item => item.relationType == `type`)) { typeIdentifiers =>
     @if(typeIdentifiers.nonEmpty) {
       <div class="related-identifier-type">
-      @if(typeIdentifiers.nonEmpty) {
         <h4>@Messages("dataCite.relationType." + `type`)</h4>
         <ul class="related-identifier-list">
         @typeIdentifiers.map { obj =>
@@ -39,7 +38,6 @@
           </li>
         }
         </ul>
-      }
       </div>
     }
   }
@@ -49,7 +47,6 @@
   @defining(relatedItems.filter(item => item.relationType == `type`)) { typeIdentifiers =>
     @if(typeIdentifiers.nonEmpty) {
       <div class="related-item-type">
-      @if(typeIdentifiers.nonEmpty) {
         <h4>@Messages("dataCite.relationType." + `type`)</h4>
         <ul class="related-item-list">
         @typeIdentifiers.map { obj =>
@@ -69,7 +66,6 @@
           </li>
         }
         </ul>
-      }
       </div>
     }
   }
@@ -77,12 +73,9 @@
 
 @datePropertyAttr(dateType: DateType.Value) = @{
   dateType match {
-    case DateType.Created => "created"
-    case DateType.Updated => "modified"
-    case DateType.Submitted => "dateSubmitted"
-    case DateType.Accepted => "dateAccepted"
-    case DateType.Copyrighted => "dateCopyrighted"
-    case _ => "date"
+    case DateType.Created => Some("dateCreated")
+    case DateType.Updated => Some("dateModified")
+    case _ => None
   }
 }
 
@@ -118,32 +111,34 @@
   <script src="@routes.Assets.versioned("js/cite-doi.js")"></script>
 }
 
-@views.html.layout.base(metadata.title.getOrElse(Messages("doi.doi", pid.value)), extraHead = extraHead, vocab = Some("http://purl.org/dc/terms/"), bodyClasses = Seq("landing-page")) {
+@views.html.layout.base(metadata.title.getOrElse(Messages("doi.doi", pid.value)), extraHead = extraHead, vocab = Some("https://schema.org/"), bodyClasses = Seq("landing-page")) {
   <section class="page-content">
   <section class="doi-banner">
     <div class="doi-identifier">
       <span property="identifier">
         <a href="@config.doiUrl(pid.value, prod)">@config.doiUrl(pid.value, prod)</a>
       </span>
-    </div>
-    <div class="doi-actions">
-      <!--<a href="#" id="doi-share-action" class="button-primary">Share</a>-->
+      <button id="copy-doi" class="doi-copy-button" type="button" aria-label="@Messages("pid.copyDoi")" title="@Messages("pid.copyDoi")" data-doi-url="@config.doiUrl(pid.value, prod)">
+        <i class="fa fa-copy"></i>
+      </button>
     </div>
   </section>
 
   <article class="metadata-section" typeof="ScholarlyArticle" resource="#publication">
     <header class="metadata-titles">
       @metadata.titles.headOption.map { obj =>
-        <h1 property="title">@obj.title</h1>
+        <h1 property="name">@obj.title</h1>
       }
-      @metadata.titles.tail.filter(_.titleType.contains(TitleType.Subtitle)).map { obj =>
-        <h2 role="doc-subtitle" class="subtitle" property="alternative">@obj.title</h2>
-      }
-      @metadata.titles.tail.filter(_.titleType.contains(TitleType.AlternativeTitle)).map { obj =>
-        <h2 role="doc-subtitle" class="alternative-title" property="alternative">@obj.title</h2>
-      }
-      @metadata.titles.tail.filter(_.titleType.contains(TitleType.TranslatedTitle)).map { obj =>
-        <i role="doc-subtitle" class="translated-title" property="alternative">@obj.title</i>
+      @defining(metadata.titles.drop(1)) { altTitles =>
+        @altTitles.filter(_.titleType.contains(TitleType.Subtitle)).map { obj =>
+          <h2 role="doc-subtitle" class="subtitle" property="alternativeHeadline">@obj.title</h2>
+        }
+        @altTitles.filter(_.titleType.contains(TitleType.AlternativeTitle)).map { obj =>
+          <h2 role="doc-subtitle" class="alternative-title" property="alternativeHeadline">@obj.title</h2>
+        }
+        @altTitles.filter(_.titleType.contains(TitleType.TranslatedTitle)).map { obj =>
+          <i role="doc-subtitle" class="translated-title" property="alternativeHeadline">@obj.title</i>
+        }
       }
     </header>
 
@@ -218,7 +213,7 @@
           <div class="metadata-value">
             <ul>
               @metadata.subjects.toSeq.flatten.map { obj =>
-                <li><span property="subject">@obj.subject</span></li>
+                <li><span property="keywords">@obj.subject</span></li>
               }
             </ul>
           </div>
@@ -249,7 +244,7 @@
         <div class="metadata-item">
           <div class="metadata-label">@Messages("dataCite.types.resourceType"):</div>
           <div class="metadata-value">
-            <span property="type">@Messages("dataCite.resourceTypeGeneral." + metadata.types.resourceTypeGeneral)</span>
+            <span property="additionalType">@Messages("dataCite.resourceTypeGeneral." + metadata.types.resourceTypeGeneral)</span>
             @metadata.types.resourceType.map { rt =>
               <span class="resource-type">
                 |
@@ -290,7 +285,7 @@
             <div class="metadata-label">@Messages("dataCite.format"):</div>
             <ul class="metadata-value metadata-value-list">
             @fmts.map { fmt =>
-              <li class="format-item" property="format">@fmt</li>
+              <li class="format-item" property="encodingFormat">@fmt</li>
             }
             </ul>
           </div>
@@ -310,7 +305,7 @@
         @metadata.language.map { lang =>
           <div class="metadata-item">
             <div class="metadata-label">@Messages("dataCite.language"):</div>
-            <div class="metadata-value" property="language">@_root_.utils.data.languageCodeToName(lang)</div>
+            <div class="metadata-value" property="inLanguage">@_root_.utils.data.languageCodeToName(lang)</div>
           </div>
         }
 
@@ -389,7 +384,7 @@
           @metadata.dates.toSeq.flatten.map { obj =>
             <div class="metadata-item">
               <div class="metadata-label">@Messages("dataCite.dateType." + obj.dateType):</div>
-              <div class="metadata-value" property="@datePropertyAttr(obj.dateType)">@obj.date</div>
+              <div class="metadata-value"@datePropertyAttr(obj.dateType).map(p => Html(s" property=\"$p\"")).getOrElse("")>@obj.date</div>
             </div>
           }
         </div>

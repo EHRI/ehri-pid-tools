@@ -1,6 +1,6 @@
 @(doiMetadataList: DoiMetadataList, prod: Boolean = false)(implicit request: RequestHeader, messages: Messages, profile: DoiProfile, config: AppConfig)
 
-@views.html.layout.base("DOI List") {
+@views.html.layout.base("DOI List", vocab = Some("https://schema.org/")) {
   <div class="page-content">
     <header>
       <h1>@Messages("doi.list")</h1>
@@ -10,14 +10,11 @@
         <ul class="doi-list">
         @for(doiMetadata <- doiMetadataList.items) {
           @defining(doiMetadata.asDataCiteMetadata) { dcm =>
-            <li class="doi-list-item" id="doi-@doiMetadata.id">
+            @defining(doiMetadata.url.getOrElse(controllers.routes.DoiController.get(doiMetadata.prefix, doiMetadata.suffix).toString)) { landingUrl =>
+            <li class="doi-list-item" id="doi-@doiMetadata.id" typeof="CreativeWork" resource="@landingUrl">
               <header>
                 <h3 class="doi-heading">
-                  @defining(controllers.routes.DoiController.get(doiMetadata.prefix, doiMetadata.suffix)) { landingUrl =>
-                  <a href="@doiMetadata.url.getOrElse(landingUrl)">
-                  }
-                  @dcm.title
-                  </a>
+                  <a href="@landingUrl" property="name" content="@dcm.title">@dcm.title</a>
                   @if(profile.showHidden) {
                     <span class="doi-state-container doi-state-@doiMetadata.state">
                       <span class="doi-state-icon"></span>
@@ -42,7 +39,7 @@
                   </span>
                 }
                 @dcm.isPublishedIn.map { case (name, url) =>
-                  <div class="doi-list-item-publication" property="publication">
+                  <div class="doi-list-item-publication" property="isPartOf">
                     <a href="@url">
                       <i class="fa fa-globe"></i>
                       @name
@@ -51,6 +48,7 @@
                 }
               </div>
             </div>
+            }
           }
         }
         </ul>
