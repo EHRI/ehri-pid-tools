@@ -16,10 +16,11 @@ case class SqlPidService @Inject()(db: Database, config: Configuration)(implicit
 
   override def findAll(ptype: PidType.Value, offset: Int = 0, limit: Int = 100): Future[Seq[Pid]] = Future {
     db.withConnection{ implicit conn =>
-      SQL"""SELECT ptype, value, target
-           FROM pids
-           WHERE ptype = $ptype::pid_type
-           ORDER BY created_at
+      SQL"""SELECT p.ptype, p.value, p.target, t.client, t.reason, t.deleted_at
+           FROM pids p
+           LEFT JOIN tombstones t on p.id = t.pid_id
+           WHERE p.ptype = $ptype::pid_type
+           ORDER BY p.created_at
            OFFSET ${Math.max(0, offset)}
            LIMIT ${Math.min(100, Math.max(0, limit))}
            """.as(pidParser.*)
