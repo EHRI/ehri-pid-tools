@@ -41,8 +41,9 @@ case class AppConfig @Inject()(config: Configuration) {
   def resolvePid(pid: String, pidType: RelatedIdentifierType.Value, staging: Boolean = true)(implicit profile: DoiProfile): Option[String] = pidType match {
     case RelatedIdentifierType.DOI => Some(doiUrl(pid, staging))
     case RelatedIdentifierType.ARK => Some(s"https://n2t.net/$pid")
-    case RelatedIdentifierType.URL => Some(pid)
+    case RelatedIdentifierType.ROR if !pid.contains("http") => Some(s"https://ror.org/$pid")
     case RelatedIdentifierType.ROR => Some(pid)
+    case RelatedIdentifierType.URL => Some(pid)
     case _ => None
   }
 }

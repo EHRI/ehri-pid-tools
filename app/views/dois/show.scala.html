@@ -9,6 +9,14 @@
   }
 }
 
+@nameSuffix(name: Name) = {
+  @name match {
+    case n: Contributor => {
+      <span class="contributor-role">@n.contributorType</span>
+    }
+  }
+}
+
 @relatedIdentifierSection(relatedIdentifiers: Seq[RelatedIdentifier], `type`: RelationType.Value) = {
   @defining(relatedIdentifiers.filter(item => item.relationType == `type`)) { typeIdentifiers =>
     @if(typeIdentifiers.nonEmpty) {
@@ -160,7 +168,7 @@
     @if(metadata.creators.nonEmpty) {
       <div class="metadata-item">
         <div class="metadata-label">@Messages("dataCite.creators")</div>
-        @views.html.dois.common.creatorList(metadata.creators)
+        @views.html.dois.common.nameList(metadata.creators)
       </div>
     }
 
@@ -197,24 +205,8 @@
         <div class="metadata-item">
           <div class="metadata-label">@Messages("dataCite.contributors")</div>
           <div class="metadata-value">
-            @metadata.contributors.toSeq.flatten.map { obj =>
-              <ul class="contributors-list">
-                <li class="contributor-item">
-                  <span property="author" typeof="Person">
-                    <span property="name">@obj.name</span>
-                  </span>
-                  <span class="contributor-role">@obj.contributorType</span>
-                  @obj.nameIdentifiers.toSeq.flatten.map { ident =>
-                    @if(ident.nameIdentifierScheme == "ORCID") {
-                      <span class="contributor-orcid">
-                        <a href="@config.orcidUrl(ident.nameIdentifier)" target="_blank">
-                          <img src="@routes.Assets.versioned("images/orcid-auth.svg")" alt="ORCID logo">
-                        </a>
-                      </span>
-                    }
-                  }
-                </li>
-              </ul>
+            @metadata.contributors.map { list =>
+               @views.html.dois.common.nameList(list, listType = "contributor", nameSuffix)
             }
           </div>
         </div>
