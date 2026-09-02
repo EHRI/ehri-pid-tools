@@ -96,5 +96,10 @@ class SqlPidServiceSpec extends AppSpec with DatabaseSupport {
     "delete tombstones" in {
       await(pidService.deleteTombstone(PidType.DOI, "10.14454/fxws-0524")) mustBe true
     }
+
+    "count tombstoned items" in {
+      await(pidService.countTombstones(PidType.DOI)) mustBe 1
+      await(pidService.countTombstones(PidType.ARK)) mustBe 1
+    }
   }
 }

@@ -24,4 +24,6 @@ trait PidService {
   def tombstone(ptype: PidType.Value, value: String, client: String, reason: String): Future[Boolean]
 
   def deleteTombstone(ptype: PidType.Value, value: String): Future[Boolean]
+
+  def countTombstones(ptype: PidType.Value): Future[Int]
 }

@@ -21,8 +21,8 @@ errors.doi.registrationFailed=An error occurred while registering the DOI {0}. \
   Please check the DOI metadata and try again.
 errors.doi.notFound=The DOI you provided does not exist, is unpublished, or is not valid.
 errors.doi.exception=Unexpected response: {0}
-errors.doi.tombstoneFailed=Error creating tombstone for DOI {0}.
-errors.doi.tombstoneNotFound=The DOI provided either does not exist, or is not tombstoned.
+errors.doi.tombstoneFailed=Error marking DOI {0} as removed.
+errors.doi.tombstoneNotFound=The DOI provided either does not exist, or has not been removed.
 errors.doi.collisionError=A DOI collision has occurred. This DOI has already been taken. \
   This error is usually transient and can be resolved by retrying the request.
 
@@ -38,6 +38,22 @@ pid.details=Details
 pid.rights=Rights
 pid.policy=EHRI Persistent Identifier Policy
 pid.policy.nav=PID Policy
+
+pid.health=PID Health Checks
+pid.health.description=This page shows a summary of periodic checks that persistent identifiers \
+  correctly resolve to their underlying entities. Due to service availability or temporary downtime \
+  some checks may show inconsistent results over time.
+pid.health.noChecks=No health checks have been run yet.
+pid.health.doi=DOI Health
+pid.health.doiResolvingLabel=DOIs resolving
+pid.health.doiFailingCount={0} failing to resolve
+pid.health.doiTombstoned={0} removed
+pid.health.lastChecked=Last Checked
+pid.health.failuresHeading=Current Failures
+pid.health.noFailures=No failures found.
+pid.health.value=DOI
+pid.health.target=Target
+pid.health.status=Status
 
 footer.services=EHRI Online Services
 footer.services.home=EHRI Home Page

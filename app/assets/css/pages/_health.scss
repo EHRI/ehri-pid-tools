@@ -1,0 +1,81 @@
+
+// PID health check page
+
+.health-page {
+
+  section {
+    margin-bottom: $space-xl;
+  }
+}
+
+.health-table {
+  width: 100%;
+  border-collapse: collapse;
+
+  th, td {
+    text-align: left;
+    padding: $space-sm $space-md;
+    border-bottom: 1px solid var(--theme-bg-accent);
+  }
+
+  th {
+    font-weight: var(--font-weight-bolder);
+  }
+}
+
+.health-failing {
+  color: #cc0000;
+  font-weight: var(--font-weight-bold);
+}
+
+.health-target {
+  word-break: break-all;
+}
+
+.health-card {
+  @include card();
+
+  display: flex;
+  align-items: center;
+  gap: $space-md;
+  padding: $space-lg;
+  width: fit-content;
+  text-decoration: none;
+  color: inherit;
+
+  img.health-card-icon {
+    width: 3rem;
+    height: 3rem;
+  }
+
+  .health-card-body {
+    display: flex;
+    flex-direction: column;
+  }
+
+  .health-card-main {
+    display: flex;
+    align-items: baseline;
+    gap: $space-sm;
+  }
+
+  .health-card-count,
+  .health-card-label {
+    font-size: var(--font-size-xl);
+    font-weight: var(--font-weight-bold);
+    color: #009966;
+  }
+
+  .health-card-sublabel {
+    color: var(--theme-fg-muted);
+    font-size: var(--font-size-sm);
+  }
+
+  .health-card-sublabel-failing {
+    color: #cc0000;
+  }
+
+  &:hover {
+    text-decoration: underline;
+  }
+}

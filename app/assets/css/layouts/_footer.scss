@@ -32,7 +32,18 @@
   }
 }
 
-.footer-services ul {
+.footer-links {
+  display: flex;
+  flex-direction: column;
+  gap: $space-lg;
+
+  @media (min-width: $breakpoint-tablet) {
+    flex-direction: row;
+    gap: $space-xl;
+  }
+}
+
+.footer-link-list {
   display: flex;
   flex-direction: column;
   gap: $space-sm;

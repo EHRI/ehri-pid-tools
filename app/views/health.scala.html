@@ -1,0 +1,14 @@
+@(doiSummary: Option[TargetCheckSummary], doiTombstoned: Int)(implicit request: RequestHeader, messages: Messages, config: AppConfig)
+
+@views.html.layout.base(Messages("pid.health")) {
+  <div class="page-content health-page">
+    <header>
+      <h1>@Messages("pid.health")</h1>
+      <p>@Messages("pid.health.description")</p>
+    </header>
+
+    <section class="health-summary">
+      @views.html.dois.common.healthCard(doiSummary, doiTombstoned, Some(controllers.routes.DoiController.health()))
+    </section>
+  </div>
+}

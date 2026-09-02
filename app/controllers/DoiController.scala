@@ -6,7 +6,7 @@ import play.api.i18n.{I18nSupport, Messages}
 import play.api.libs.json.JsError.toJson
 import play.api.libs.json.{JsError, JsSuccess, JsValue, Json, Reads}
 import play.api.mvc._
-import services.{DoiExistsException, DoiListParams, DoiNotFound, DoiService, DoiServiceHandle, PidExistsException, PidService}
+import services.{DoiExistsException, DoiListParams, DoiNotFound, DoiService, DoiServiceHandle, PidExistsException, PidService, TargetCheckService}
 
 import javax.inject._
 import scala.concurrent.ExecutionContext
@@ -20,6 +20,7 @@ class DoiController @Inject()(
   val controllerComponents: ControllerComponents,
   doiServiceHandle: DoiServiceHandle,
   pidService: PidService,
+  targetCheckService: TargetCheckService,
   AuthAction: AuthAction,
 )(implicit ec: ExecutionContext, appConfig: AppConfig) extends BaseController with I18nSupport {
 
@@ -76,6 +77,26 @@ class DoiController @Inject()(
 
       }
     }
+  }
+
+  /**
+   * Reports DOIs whose target page failed its most recent health check.
+   */
+  def targetHealth(): Action[AnyContent] = Action.async {
+    targetCheckService.latestFailures(Some(PidType.DOI)).map { failures =>
+      Ok(Json.obj("failures" -> failures))
+    }
+  }
+
+  /**
+   * Shows a health summary plus the list of DOIs whose target page failed
+   * its most recent health check.
+   */
+  def health(): Action[AnyContent] = Action.async { implicit request =>
+    for {
+      (doiSummary, tombstones) <- HealthSummary.fetch(targetCheckService, pidService, PidType.DOI)
+      failures <- targetCheckService.latestFailures(Some(PidType.DOI))
+    } yield Ok(views.html.dois.health(doiSummary, tombstones, failures))
   }
 
   def example(): Action[AnyContent] = Action { implicit request =>
