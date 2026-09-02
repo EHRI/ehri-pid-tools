@@ -39,6 +39,12 @@ pid.rights=Rights
 pid.policy=EHRI Persistent Identifier Policy
 pid.policy.nav=PID Policy
 
+footer.services=EHRI Online Services
+footer.services.home=EHRI Home Page
+footer.services.portal=EHRI Portal
+footer.services.blog=EHRI Document Blog
+footer.services.geodata=EHRI Geospatial Repository
+
 doi.doi=DOI: {}
 doi.list=Registered DOIs
 doi.list.noneFound=No DOIs found

@@ -19,6 +19,28 @@
   }
 }
 
+.footer-row {
+  display: flex;
+  flex-direction: column;
+  gap: $space-md;
+  justify-content: space-between;
+  align-items: flex-start;
+
+  @media (min-width: $breakpoint-tablet) {
+    flex-direction: row;
+    align-items: center;
+  }
+}
+
+.footer-services ul {
+  display: flex;
+  flex-direction: column;
+  gap: $space-sm;
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+
 .footer-content {
   display: grid;
   grid-auto-columns: minmax(0, 1fr);
