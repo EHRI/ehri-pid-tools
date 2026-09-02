@@ -33,6 +33,7 @@ notice=NB
 
 pid.citeThisItem=Cite this item
 pid.citationCopied=Citation copied!
+pid.copyDoi=Copy DOI
 pid.details=Details
 pid.rights=Rights
 pid.policy=EHRI Persistent Identifier Policy

@@ -136,6 +136,19 @@ function interceptXHRUrl(originalUrl, replacementUrl, once = false) {
 document.onreadystatechange = function () {
   if (document.readyState === "complete") {
 
+    const copyDoiButton = document.getElementById('copy-doi');
+    const copyDoiIcon = copyDoiButton && copyDoiButton.querySelector('i');
+    if (copyDoiButton && copyDoiIcon) {
+      copyDoiButton.addEventListener('click', function (event) {
+        event.preventDefault();
+        copyToClipboard(copyDoiButton.dataset.doiUrl);
+        copyDoiIcon.classList.replace('fa-copy', 'fa-check');
+        setTimeout(function() {
+          copyDoiIcon.classList.replace('fa-check', 'fa-copy');
+        }, 1000);
+      });
+    }
+
     interceptXHRUrl('https://doi.org/', doiResolverPrefix, true);
 
     const cite = new Cite(doi);
