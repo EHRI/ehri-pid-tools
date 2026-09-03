@@ -21,6 +21,7 @@
           <li><a href="#orcid">ORCID</a></li>
           <li><a href="#ror">Research Organization Registry (ROR)</a></li>
           <li><a href="#issn">e-ISSN</a></li>
+          <li><a href="#termination">Termination and/or Handover of PID services</a></li>
         </ul>
       </nav>
     </header>
@@ -28,8 +29,14 @@
       <section id="overview">
         <h2>Overview</h2>
         <p>
-          EHRI uses a number of different PID types depending on the type of resources being
-          identified and who has custody and editorial control over the original data.
+          EHRI uses different PID types depending on the type of resource being
+          identified and who has custody and editorial control over the original data. The term
+          &quot;data&quot;, used here, may refer to several different types of resources, including
+          (but not limited to): articles, websites, datasets, and metadata entries pertaining
+          to both physical and intellectual entities.
+        </p>
+        <h3 id="responsibilities">Responsibilities and Curation</h3>
+        <p>
           Responsibility for the accuracy and quality of PID metadata and the integrity of
           their relationship to the underlying resources rests with the EHRI-ERIC Central Hub.
         </p>
@@ -56,7 +63,7 @@
             and scholarly <a href="https://www.ehri-project.eu/ehri-online-editions/">Online Editions</a>.
           More resources may be added in future.
           EHRI uses <a href="https://datacite.org">DataCite</a> to register DOIs with the prefix
-          <a href="@controllers.routes.DoiController.index()">10.82169</a>.
+          <a href="@controllers.routes.DoiController.index()">@config.doiPrefix</a>.
         </p>
         <p>
           DOI URLs typically resolve to a landing page which includes:
@@ -77,8 +84,23 @@
         <p>
           If a resource is removed or becomes unavailable, its DOI landing
           page will remain accessible but
-          return a <code>410</code> &quot;GONE&quot; HTTP status acknowledging the item's prior existence,
-            rather than a <code>404</code> &quot;Not Found&quot; page. The is referred to as a &quot;tombstone&quot; page.
+          return an HTTP <code>410 Gone</code> status acknowledging the item's prior existence,
+            rather than a <code>404 Not Found</code> page. This is referred to as a &quot;tombstone&quot; page.
+        </p>
+        <h3 id="doi-quality">Quality Assurance</h3>
+        <p>
+          EHRI DOIs are subject to an automated quality assurance check with results available
+          on the <a href="@controllers.routes.DoiController.health()">@Messages("pid.health.doi")</a> page. This
+          check takes the form of a periodic scan of DOIs and the entities (web page,
+          website, dataset, etc.) to which they refer, recording any targets which are currently unavailable
+          or not functioning correctly. Due to the nature of the web and potential for networking glitches,
+          scheduled or unscheduled downtime, etc., the health check may report results which are sometimes
+          inconsistent.
+        </p>
+        <h3 id="doi-responsibilities">Responsibilities</h3>
+        <p>
+          Responsibilities between EHRI-ERIC and the DOI Service Provider will be governed by the
+          <a href="https://datacite.org/wp-content/uploads/2023/08/MemberRolesResponsibilities.pdf">DataCite Member Roles and Responsibilities</a>.
         </p>
       </section>
 
@@ -104,7 +126,7 @@
         <p>
           Unlike DOIs, ARK URLs resolve directly to the resource, not a landing page. EHRI
           ARKs support the &quot;??&quot; inflection; that is, appending &quot;??&quot; to the
-          URL will return a brief plain text metadata statement concerning the resource.
+          ARK URL will return a brief plain text metadata statement concerning the resource.
         </p>
 
         <h3 id="ark-versioning">Versioning and Removal</h3>
@@ -119,6 +141,21 @@
           a tombstone page (with an HTTP <code>410 Gone</code> status code) containing the
             date at which the item was deleted.
         </p>
+
+        <h3 id="ark-quality">Quality Assurance</h3>
+        <p>
+          ARK PIDs on the EHRI Portal are subject to less stability than DOIs, simply
+          because they often (but not always) refer to archival descriptions created by third
+          party data providers and therefore subject to removal or reorganisation at the
+          originator's discretion. While the EHRI Portal incorporates mechanisms to ensure
+          that ARKs cannot be inadvertently (or purposefully) re-used or redirected in an
+          inconsistent manner, PID consistency is ultimately only as stable as the aggregated
+          data sources allow.
+        </p>
+        <p>
+          While not yet implemented we hope to provide more statistics on churn (removal and
+          redirection) across ARK PIDs in future.
+        </p>
       </section>
 
       <section id="orcid">
@@ -131,7 +168,7 @@
           record their contributions to EHRI outputs. Support currently differs by system: the
           <a href="https://blog.ehri-project.eu">EHRI Document Blog</a> records contributor ORCID
           iDs as entered by administrators. Authenticated OAuth2 sign-in with ORCID on the EHRI
-          Portal is planned, but not available as of 2026.
+          Portal is planned, but not yet available.
         </p>
       </section>
 

@@ -28,6 +28,11 @@ case class AppConfig @Inject()(config: Configuration) {
   def doiResolverPrefix: String = config.get[String]("doi.default.resolverPrefix")
 
   /**
+   * The DOI prefix EHRI registers DOIs under.
+   */
+  def doiPrefix: String = config.get[String]("doi.default.prefix")
+
+  /**
    * Resolve a DOI.
    *
    * @param doi  the DOI.
