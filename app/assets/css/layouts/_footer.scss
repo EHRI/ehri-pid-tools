@@ -32,6 +32,12 @@
   }
 }
 
+.copyright {
+  @media (min-width: $breakpoint-tablet) {
+    align-self: flex-start;
+  }
+}
+
 .footer-links {
   display: flex;
   flex-direction: column;
@@ -50,6 +56,10 @@
   margin: 0;
   padding: 0;
   list-style: none;
+}
+
+.footer-health a i {
+  margin-right: $space-xs;
 }
 
 .footer-content {
