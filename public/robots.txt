@@ -1,0 +1,5 @@
+User-agent: *
+Disallow: /dois$
+Disallow: /dois/example$
+Disallow: /dois/health$
+Disallow: /dois/target-health$
