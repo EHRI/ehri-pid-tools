@@ -140,7 +140,7 @@ class DoiControllerSpec extends AppSpec with DatabaseSupport with MockitoSugar w
 
       status(result) mustBe NOT_FOUND
       contentType(result) mustBe Some("text/html")
-      contentAsString(result) must include ("DOI not found")
+      contentAsString(result) must include (Messages("errors.doi.notFound"))
     }
 
     "register a DOI" in {
