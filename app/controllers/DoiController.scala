@@ -121,7 +121,7 @@ class DoiController @Inject()(
         render {
           // If we're returning HTML and configured to not show hidden items, throw a 404
           case Accepts.Html() if doiMetadata.state != DoiState.Findable && !doiProfile.showHidden =>
-            throw DoiNotFound(Messages("errors.doi.notFound"))
+            throw DoiNotFound("errors.doi.notFound")
           // If we're returning HTML and hidden items are visible, show the page:
           case Accepts.Html() =>
             retStatus(views.html.dois.show(pid, doiMetadata.asDataCiteMetadata, prod = !doiProfile.showHidden))
@@ -131,7 +131,7 @@ class DoiController @Inject()(
         }
       }
       case None => immediate(render {
-        case Accepts.Html() => NotFound(views.html.errors.notFound("DOI not found"))
+        case Accepts.Html() => NotFound(views.html.errors.notFound("errors.doi.notFound"))
         case _ => jsonApiError(NotFound, "errors.doi.notFound")
       })
     }

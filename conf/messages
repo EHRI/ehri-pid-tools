@@ -1,16 +1,6 @@
 # https://www.playframework.com/documentation/latest/ScalaI18N
 
 index.name=Home
-index.title=EHRI Persistent Identifiers
-index.message.intro=This service displays metadata about articles and other outputs created by \
- the {0} that have been assigned persistent \
- identifiers (PIDs for short). EHRI currently uses {1} to register Digital Object Identifiers \
- (DOIs) for articles on the {2}, with more outputs to follow as per the {3}.
-index.message.intro.link0=European Holocaust Research Infrastructure (EHRI)
-index.message.intro.link1=DataCite
-index.message.intro.link2=EHRI Document Blog
-index.message.intro.link3=EHRI PID Roadmap
-index.message.links=For more EHRI outputs, see these sites:
 
 error.invalidToken=The token is missing, invalid or expired.
 errors.notFound=404 Not Found
@@ -83,7 +73,6 @@ dataCite.publisher=Publisher
 dataCite.publicationYear=Publication Year
 dataCite.dates=Dates
 dataCite.format=Format
-dataCite.types=Resource Type
 dataCite.size=Size
 dataCite.language=Language
 dataCite.types.resourceType=Type
@@ -98,9 +87,7 @@ dataCite.descriptionType.TechnicalInfo=Technical Information
 dataCite.descriptionType.Other=Other Descriptive Information
 
 dataCite.description=Description
-dataCite.versions=Versions
 
-dataCite.resourceTypeGeneral=Resource Type General
 dataCite.resourceTypeGeneral.Audiovisual=Audio/Visual
 dataCite.resourceTypeGeneral.Award=Award
 dataCite.resourceTypeGeneral.Book=Book
@@ -135,7 +122,6 @@ dataCite.resourceTypeGeneral.Workflow=Workflow
 dataCite.resourceTypeGeneral.Other=Other
 
 dataCite.relatedIdentifiers=Related Works
-dataCite.relatedIdentifierType=Related Identifier Type
 dataCite.relatedIdentifierType.doi=DOI
 dataCite.relatedIdentifierType.url=URL
 dataCite.relatedIdentifierType.isbn=ISBN
@@ -178,7 +164,6 @@ dataCite.relationType.Collects=Collects
 dataCite.relationType.HasTranslation=Has Translation
 dataCite.relationType.IsTranslationOf=Is Translation Of
 
-dataCite.dateType=Date Type
 dataCite.dateType.Accepted=Accepted
 dataCite.dateType.Available=Available
 dataCite.dateType.Copyrighted=Copyrighted
