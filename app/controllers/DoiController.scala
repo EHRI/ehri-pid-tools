@@ -6,7 +6,7 @@ import play.api.i18n.{I18nSupport, Messages}
 import play.api.libs.json.JsError.toJson
 import play.api.libs.json.{JsError, JsSuccess, JsValue, Json, Reads}
 import play.api.mvc._
-import services.{DoiExistsException, DoiListParams, DoiNotFound, DoiService, DoiServiceHandle, PidExistsException, PidService, TargetCheckService}
+import services.{DoiExistsException, DoiListParams, DoiNotFound, DoiService, DoiServiceHandle, PidExistsException, PidNotFoundException, PidService, TargetCheckService}
 
 import javax.inject._
 import scala.concurrent.ExecutionContext
@@ -179,10 +179,14 @@ class DoiController @Inject()(
         logger.debug(s"Updating DOI '$doi' (${metadata.state}) with target: $target")
         logger.trace(s"  Metadata: $metadata")
 
-        for {
+        (for {
           dm <- doiService.updateDoi(doi, metadata)
           pid <- pidService.update(PidType.DOI, doi, target)
-        } yield Ok(Doi(dm, target, pid.tombstone))
+        } yield Ok(Doi(dm, target, pid.tombstone)))
+          .recover {
+            case _: PidNotFoundException =>
+              jsonApiError(NotFound, "errors.doi.notFound")
+          }
       case JsError(errors) =>
         logger.error(s"Invalid request body: $errors")
         immediate(jsonApiError(BadRequest, "errors.invalidRequest"))

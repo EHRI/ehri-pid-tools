@@ -258,6 +258,22 @@ class DoiControllerSpec extends AppSpec with DatabaseSupport with MockitoSugar w
       out \ "data" \ "attributes" \ "prefix" mustBe JsDefined(JsString("10.14454"))
     }
 
+    "return not found when updating a DOI with no matching PID" in {
+      val payload = resourceAsJson("example.json").as[JsObject] ++ Json.obj(
+        "meta" -> Json.obj(
+          "target" -> "https://example.com/resource"
+        )
+      )
+      val request = FakeRequest(PUT, routes.DoiController.update(prefix, "no-such-pid").url)
+        .withHeaders(
+          "Accept" -> "application/vnd.api+json",
+          "Authorization" -> basicAuthString)
+        .withJsonBody(payload)
+      val result = call(controller.update(prefix, "no-such-pid"), request)
+
+      status(result) mustBe NOT_FOUND
+    }
+
     "delete DOIs" in {
       val request = FakeRequest(DELETE, routes.DoiController.delete(prefix, suffix).url)
         .withHeaders("Authorization" -> basicAuthString)

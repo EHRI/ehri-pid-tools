@@ -81,6 +81,12 @@ class SqlPidServiceSpec extends AppSpec with DatabaseSupport {
       updatedPid.tombstone.get.client mustBe "system"
     }
 
+    "error when updating a non-existing item" in {
+      intercept[PidNotFoundException] {
+        await(pidService.update(PidType.DOI, "10.1234/does-not-exist", "https://foo.bar/baz"))
+      }
+    }
+
     "delete items" in {
       await(pidService.delete(PidType.DOI, "10.14454/fxws-0523")) mustBe true
     }
