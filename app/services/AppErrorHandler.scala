@@ -21,7 +21,11 @@ class AppErrorHandler @Inject() (
   "text/html"        -> htmlHandler,
 ) with Rendering with I18nSupport {
   override def onClientError(request: RequestHeader, statusCode: Int, message: String): Future[Result] = {
-    jsonHandler.onClientError(request, statusCode, message)
+    implicit val r: RequestHeader = request
+    render.async {
+      case Accepts.Html() => htmlHandler.onClientError(request, statusCode, message)
+      case _ => jsonHandler.onClientError(request, statusCode, message)
+    }
   }
 
   override def onServerError(request: RequestHeader, exception: Throwable): Future[Result] = {
