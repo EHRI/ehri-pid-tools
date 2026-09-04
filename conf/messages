@@ -32,6 +32,7 @@ pagination.nextPage=Next Page
 notice=NB
 
 pid.citeThisItem=Cite this item
+pid.citeThisItem.format=Citation format
 pid.citationCopied=Citation copied!
 pid.copyDoi=Copy DOI
 pid.details=Details

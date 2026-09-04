@@ -91,6 +91,9 @@ class DoiControllerSpec extends AppSpec with DatabaseSupport with MockitoSugar w
       status(result) mustBe OK
       contentType(result) mustBe Some("text/html")
       contentAsString(result) must include ("DataCite Metadata Schema")
+      // the citation format selector must have a resolved, accessible label
+      contentAsString(result) must include (Messages("pid.citeThisItem.format"))
+      contentAsString(result) must not include ("pid.citeThisItem.format")
     }
 
     "show hidden DOIs when profile has showHidden enabled" in {

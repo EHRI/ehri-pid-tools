@@ -336,7 +336,7 @@
             <div class="metadata-item">
               <div class="metadata-value" property="license">
                 @obj.schemeUri.map { uri =>
-                <a href="@uri" target="_blank">@obj.rights</a>
+                <a href="@uri" target="_blank" rel="noopener">@obj.rights</a>
                 }.getOrElse {
                   <span>@obj.rights</span>
                 }
@@ -357,7 +357,7 @@
             <div id="citation-text" class="citation-text"></div>
           </div>
           <div class="citation-controls">
-            <label for="citation-format-selector">@Messages("pid.citeThisItem.format")</label>
+            <label for="citation-format-selector" class="sr-only">@Messages("pid.citeThisItem.format")</label>
             <select id="citation-format-selector">
               <option value="apa" selected>APA</option>
               <option value="mla">MLA</option>
