@@ -34,6 +34,13 @@ class WsDoiServiceSpec extends AppSpec with MockWSHelpers {
       }
     }
 
+    "error cleanly on a non-JSON error response" in {
+      val exception = intercept[DoiServiceException] {
+        await(wsDoiService.getDoiMetadata("SERVER/ERROR")) // see mocks
+      }
+      exception.status mustBe 500
+    }
+
     "register a DOI" in {
       val response = await(wsDoiService.registerDoi(resourceAsJson("example.json").as[JsonApiData].data.as[DoiMetadata]))
       response mustBe resourceAsJson("example.json").as[JsonApiData].data.as[DoiMetadata]
