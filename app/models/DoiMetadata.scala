@@ -13,7 +13,7 @@ object DoiState extends Enumeration with EnumToJSON {
 case class DoiMetadata(id: Option[String], `type`: Option[String], attributes: JsValue, meta: Option[JsObject] = None) {
   def state: DoiState.Value = (attributes \ "state").asOpt[DoiState.Value].getOrElse(DoiState.Draft)
   def prefix: String = id.flatMap(_.split("/").headOption).getOrElse("")
-  def suffix: String = id.flatMap(_.split("/").lift(1)).getOrElse("")
+  def suffix: String = id.flatMap(_.split("/", 2).lift(1)).getOrElse("")
 
   /**
    * The DOI title
