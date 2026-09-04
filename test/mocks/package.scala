@@ -29,6 +29,11 @@ package object mocks {
           )
         )
       }
+      case (GET, regex(doi)) if doi == "SERVER/ERROR" => Action {
+        // Simulate an upstream error response that isn't JSON at all (e.g. a
+        // proxy/gateway error page), to verify parseResponse doesn't choke on it.
+        Results.InternalServerError("<html><body>Bad Gateway</body></html>")
+      }
       case (GET, regex(doi)) if doi == "NOT/FINDABLE" => Action {
         // Test fetching a DOI that does not have a 'findable' state:
         val jsonText = resourceAsString("example.json")

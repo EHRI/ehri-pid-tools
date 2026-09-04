@@ -5,12 +5,13 @@ import org.apache.pekko.util.ByteString
 import play.api.Configuration
 import play.api.http.Status
 import play.api.http.Status.{CREATED, NO_CONTENT, OK}
-import play.api.libs.json.{JsError, JsSuccess, Json, Reads}
+import play.api.libs.json.{JsError, JsNull, JsSuccess, JsValue, Json, Reads}
 import play.api.libs.ws.{BodyWritable, InMemoryBody, WSClient, WSResponse}
 
 import java.util.Base64
 import javax.inject.Inject
 import scala.concurrent.{ExecutionContext, Future}
+import scala.util.Try
 
 /**
  * Class for instantiating a DOI service with a given profile.
@@ -117,14 +118,18 @@ case class WsDoiService(profile: DoiProfile, ws: WSClient, config: Configuration
           throw new RuntimeException(s"Failed to parse response: ${response.status} ${response.statusText} - $errors")
       }
     } else {
-      val errorObj = response.json.asOpt[JsonApiError]
+      // The error body isn't guaranteed to be valid JSON (e.g. an upstream
+      // proxy error page), so don't let parsing it throw before we've had a
+      // chance to classify the response by status code.
+      val bodyJson: JsValue = Try(response.json).getOrElse(JsNull)
+      val errorObj = bodyJson.asOpt[JsonApiError]
       if (response.status == Status.NOT_FOUND) {
-        throw DoiNotFound("errors.doi.notFound", Some(response.json))
+        throw DoiNotFound("errors.doi.notFound", Some(bodyJson))
       } else if (response.status == Status.UNPROCESSABLE_ENTITY
         && errorObj.exists(_.firstMessage.contains("This DOI has already been taken"))) {
-        throw DoiExistsException("errors.doi.collisionError", Some(response.json))
+        throw DoiExistsException("errors.doi.collisionError", Some(bodyJson))
       } else {
-        throw DoiServiceException("errors.doi.exception", response.status, response.json)
+        throw DoiServiceException("errors.doi.exception", response.status, bodyJson)
       }
     }
   }
