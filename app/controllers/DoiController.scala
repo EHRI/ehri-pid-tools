@@ -195,10 +195,14 @@ class DoiController @Inject()(
 
   def delete(prefix: String, suffix: String): Action[AnyContent] = AuthAction.async { implicit request =>
     // Delete the DOI and the associated PID
+    val doi = s"$prefix/$suffix"
     for {
-      _ <- doiService.deleteDoi(s"$prefix/$suffix")
-      _ <- pidService.delete(PidType.DOI, s"$prefix/$suffix")
-    } yield NoContent
+      _ <- doiService.deleteDoi(doi)
+      deleted <- pidService.delete(PidType.DOI, doi)
+    } yield deleted match {
+      case true => NoContent
+      case false => jsonApiError(BadRequest, "errors.doi.deleteFailed", doi)
+    }
   }
 
   def tombstone(prefix: String, suffix: String): Action[JsonApiData] = AuthAction.async(apiJson[JsonApiData]) { implicit request =>
