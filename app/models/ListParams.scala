@@ -31,7 +31,7 @@ object ListParams {
           ListParams(
             bindOrDefault(QUERY, params, Option.empty[String]),
             bindOrDefault(PAGE, params, DEFAULT_PAGE).max(DEFAULT_PAGE),
-            bindOrDefault(LIMIT, params, DEFAULT_LIMIT).min(DEFAULT_LIMIT),
+            bindOrDefault(LIMIT, params, DEFAULT_LIMIT).min(DEFAULT_LIMIT).max(1),
             bindOrDefault(SORT, params, Option.empty[String]),
           )
         )
