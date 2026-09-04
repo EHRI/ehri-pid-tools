@@ -68,6 +68,13 @@ case class SqlPidService @Inject()(db: Database, config: Configuration)(implicit
     }
   }(ec)
 
+  override def targetExists(target: String): Future[Boolean] = Future {
+    db.withConnection { implicit conn =>
+      SQL"SELECT EXISTS(SELECT 1 FROM pids WHERE target = $target)"
+        .as(SqlParser.scalar[Boolean].single)
+    }
+  }(ec)
+
   override def create(ptype: PidType.Value, value: String, target: String, client: String): Future[Pid] = Future {
     db.withConnection { implicit conn =>
       try {

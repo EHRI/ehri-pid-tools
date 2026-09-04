@@ -1,9 +1,17 @@
 package controllers
 
 import helpers.AppSpec
+import org.mockito.ArgumentMatchers.any
+import org.mockito.Mockito.when
+import org.scalatestplus.mockito.MockitoSugar
 import play.api.i18n.{Messages, MessagesApi}
+import play.api.libs.ws.WSClient
 import play.api.test.Helpers._
 import play.api.test._
+import services.PidService
+
+import scala.concurrent.ExecutionContext.Implicits.global
+import scala.concurrent.Future
 
 /**
  * Add your spec here.
@@ -11,9 +19,16 @@ import play.api.test._
  *
  * For more information, see https://www.playframework.com/documentation/latest/ScalaTestingWithScalaTest
  */
-class PreviewControllerSpec extends AppSpec {
+class PreviewControllerSpec extends AppSpec with MockitoSugar {
 
-  private def controller = inject[PreviewController]
+  // preview() only fetches URLs that are a registered PID target, so the
+  // controller under test here is given a PidService that always says yes -
+  // this spec is about the HTML-generation logic, not PID persistence.
+  private def controller: PreviewController = {
+    val pidService = mock[PidService]
+    when(pidService.targetExists(any())).thenReturn(Future.successful(true))
+    new PreviewController(stubControllerComponents(), inject[WSClient], inject[play.api.cache.AsyncCacheApi], inject[play.api.Configuration], pidService)
+  }
   private def messagesApi: MessagesApi = inject[MessagesApi]
   private val testUrl = "https://example.com/preview-test"
   private val testUrl2 = "https://example.com/preview-test2"
@@ -39,6 +54,16 @@ class PreviewControllerSpec extends AppSpec {
 
       val html = contentAsString(result)
       html must not include ("https://example.com/preview-test-image2.svg")
+    }
+
+    "return not found for a URL that isn't a registered PID target" in {
+      val pidService = mock[PidService]
+      when(pidService.targetExists(any())).thenReturn(Future.successful(false))
+      val controller = new PreviewController(stubControllerComponents(), inject[WSClient], inject[play.api.cache.AsyncCacheApi], inject[play.api.Configuration], pidService)
+
+      val request = FakeRequest(GET, routes.PreviewController.preview(testUrl).url)
+      val result = controller.preview(testUrl).apply(request)
+      status(result) mustBe NOT_FOUND
     }
 
     "displayed percent-encoded URLs as UTF-8" in {

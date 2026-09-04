@@ -15,6 +15,11 @@ trait PidService {
 
   def findByTarget(ptype: PidType.Value, target: String): Future[Option[Pid]]
 
+  /**
+   * Whether the given URL is a registered target of any PID, regardless of type.
+   */
+  def targetExists(target: String): Future[Boolean]
+
   def create(ptype: PidType.Value, value: String, target: String, client: String): Future[Pid]
 
   def update(ptype: PidType.Value, value: String, target: String): Future[Pid]

@@ -8,6 +8,7 @@ import play.api.libs.ws.WSClient
 import play.api.mvc._
 import play.api.{Configuration, Logger}
 import play.twirl.api.Html
+import services.PidService
 
 import javax.inject._
 import scala.concurrent.duration.Duration
@@ -22,7 +23,8 @@ class PreviewController @Inject()(
   val controllerComponents: ControllerComponents,
   ws: WSClient,
   cache: AsyncCacheApi,
-  config: Configuration
+  config: Configuration,
+  pidService: PidService,
 )(implicit ec: ExecutionContext) extends BaseController with I18nSupport {
 
   private val logger = Logger(classOf[PreviewController])
@@ -46,28 +48,33 @@ class PreviewController @Inject()(
   }
 
   def preview(url: String): Action[AnyContent] = Action.async { implicit request: RequestHeader =>
-    val snippet: Future[Html] = ws.url(url).get().flatMap { response =>
-      val soup = Jsoup.parse(response.body)
-      // Extract: og:site_name, og:title, og:description, og:image, og:url
-      val siteName = getMetaProperty(soup, "og:site_name")
-      val title = getMetaProperty(soup, "og:title")
-      val description = getMetaProperty(soup, "og:description").getOrElse("")
-      val image = getMetaProperty(soup, "og:image")
-      val canonicalUrl = getMetaProperty(soup, "og:url").getOrElse(url)
-      val fullTitle = (for ( t <- title; s <- siteName) yield s"$t | $s").orElse(title).getOrElse("")
+    pidService.targetExists(url).flatMap {
+      case false =>
+        Future.successful(NotFound("Not a registered PID target"))
+      case true =>
+        val snippet: Future[Html] = ws.url(url).get().flatMap { response =>
+          val soup = Jsoup.parse(response.body)
+          // Extract: og:site_name, og:title, og:description, og:image, og:url
+          val siteName = getMetaProperty(soup, "og:site_name")
+          val title = getMetaProperty(soup, "og:title")
+          val description = getMetaProperty(soup, "og:description").getOrElse("")
+          val image = getMetaProperty(soup, "og:image")
+          val canonicalUrl = getMetaProperty(soup, "og:url").getOrElse(url)
+          val fullTitle = (for ( t <- title; s <- siteName) yield s"$t | $s").orElse(title).getOrElse("")
 
-      // Check we can access the image via a HEAD request:
-      image.map(url => checkImage(url)).getOrElse(Future.successful(false)).map { imageOk =>
-        views.html.preview(canonicalUrl, fullTitle, description, image.filter( _ => imageOk))
-      }
-    }
-    cache.getOrElseUpdate(s"preview:$url", config.get[Duration]("preview.cache.time"))(snippet).map { html =>
-      Ok(html).withHeaders(
-        "Cache-Control" -> "max-age=3600, must-revalidate",
-      )
-    }.recover {
-      case e: Exception =>
-        InternalServerError("Error fetching preview: " + e.getMessage)
+          // Check we can access the image via a HEAD request:
+          image.map(url => checkImage(url)).getOrElse(Future.successful(false)).map { imageOk =>
+            views.html.preview(canonicalUrl, fullTitle, description, image.filter( _ => imageOk))
+          }
+        }
+        cache.getOrElseUpdate(s"preview:$url", config.get[Duration]("preview.cache.time"))(snippet).map { html =>
+          Ok(html).withHeaders(
+            "Cache-Control" -> "max-age=3600, must-revalidate",
+          )
+        }.recover {
+          case e: Exception =>
+            InternalServerError("Error fetching preview: " + e.getMessage)
+        }
     }
   }
 }
