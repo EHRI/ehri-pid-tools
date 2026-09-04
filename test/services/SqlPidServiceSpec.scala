@@ -101,5 +101,11 @@ class SqlPidServiceSpec extends AppSpec with DatabaseSupport {
       await(pidService.countTombstones(PidType.DOI)) mustBe 1
       await(pidService.countTombstones(PidType.ARK)) mustBe 1
     }
+
+    "check target existence regardless of type" in {
+      await(pidService.targetExists("https://example.com/pid-test-1")) mustBe true
+      await(pidService.targetExists("https://example.com/pid-test-4")) mustBe true // an ARK target
+      await(pidService.targetExists("https://not-a-registered-target.example")) mustBe false
+    }
   }
 }
