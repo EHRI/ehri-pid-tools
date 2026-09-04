@@ -16,7 +16,7 @@
             }
             @page.paginationRanges().map { range =>
                 @range.map { cp =>
-                    <li class="@(if(cp == page.page) "active")" aria-current="page">
+                    <li class="@(if(cp == page.page) "active")" @if(cp == page.page) {aria-current="page"}>
                         <a href="@pageUrl(cp)">@cp@if(cp == page.page) { <span class="sr-only">(current)</span>}</a>
                     </li>
                 }
