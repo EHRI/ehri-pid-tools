@@ -97,7 +97,7 @@ case class SqlPidService @Inject()(db: Database, config: Configuration)(implicit
 
   override def update(ptype: PidType.Value, value: String, target: String): Future[Pid] = Future {
     db.withConnection { implicit conn =>
-      SQL"""WITH updated_pids AS (
+      val result = SQL"""WITH updated_pids AS (
               UPDATE pids
               SET target = $target
               WHERE ptype = $ptype::pid_type AND value = $value
@@ -107,7 +107,8 @@ case class SqlPidService @Inject()(db: Database, config: Configuration)(implicit
             FROM updated_pids p
             LEFT JOIN tombstones t ON p.id = t.pid_id
             """
-        .as(pidParser.single)
+        .as(pidParser.singleOpt)
+      result.getOrElse(throw PidNotFoundException(s"PID with type $ptype and value '$value' does not exist."))
     }
   }(ec)
 

@@ -22,6 +22,10 @@ trait PidService {
 
   def create(ptype: PidType.Value, value: String, target: String, client: String): Future[Pid]
 
+  /**
+   * Update the target of an existing PID.
+   * @throws PidNotFoundException if no PID with the given type and value exists
+   */
   def update(ptype: PidType.Value, value: String, target: String): Future[Pid]
 
   def delete(ptype: PidType.Value, value: String): Future[Boolean]
