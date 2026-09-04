@@ -282,6 +282,14 @@ class DoiControllerSpec extends AppSpec with DatabaseSupport with MockitoSugar w
       status(result) mustBe NO_CONTENT
     }
 
+    "report an error when deleting a DOI with no matching PID" in {
+      val request = FakeRequest(DELETE, routes.DoiController.delete(prefix, "no-such-pid").url)
+        .withHeaders("Authorization" -> basicAuthString)
+      val result = call(controller.delete(prefix, "no-such-pid"), request)
+
+      status(result) mustBe BAD_REQUEST
+    }
+
     "fail to register a DOI with invalid payload" in {
       val payload = Json.obj(
         "meta" -> Json.obj(
