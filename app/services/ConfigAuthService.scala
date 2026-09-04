@@ -3,6 +3,7 @@ package services
 import play.api.{Configuration, Logger}
 
 import java.nio.charset.StandardCharsets
+import java.security.MessageDigest
 import javax.inject.Inject
 import scala.concurrent.Future
 import scala.concurrent.Future.{successful => immediate}
@@ -27,7 +28,8 @@ case class ConfigAuthService @Inject()(config: Configuration) extends AuthServic
           val secret = clients.get(clientId)
 
           secret match {
-            case Some(s) if s == clientSecret => immediate(Some(clientId))
+            case Some(s) if MessageDigest.isEqual(s.getBytes(StandardCharsets.UTF_8), clientSecret.getBytes(StandardCharsets.UTF_8)) =>
+              immediate(Some(clientId))
             case Some(_) =>
               logger.debug(s"Invalid client secret for client ID: '$clientId'")
               immediate(None)
